@@ -29,17 +29,32 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      # -----------------------------
+      # Install Google Chrome + Driver
+      # -----------------------------
+      - name: Install Google Chrome
+        run: |
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
+          google-chrome --version
+
+      - name: Install ChromeDriver
+        run: |
+          CHROME_VERSION=$(google-chrome --version | sed 's/[^0-9.]*//g' | cut -d '.' -f 1)
+          DRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
+          wget "https://chromedriver.storage.googleapis.com/${DRIVER_VERSION}/chromedriver_linux64.zip"
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/local/bin/chromedriver
+          sudo chmod +x /usr/local/bin/chromedriver
+          chromedriver --version
+
+      # -----------------------------
+      # Backend install
+      # -----------------------------
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
-      - name: Install Chrome + ChromeDriver
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser chromium-chromedriver
-          chromium-browser --version
-          chromedriver --version
 
       - name: Install backend dependencies
         working-directory: ./backend
@@ -47,10 +62,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # -----------------------------
+      # Frontend install
+      # -----------------------------
       - name: Install frontend dependencies
         working-directory: ./frontend
         run: npm ci
 
+      # -----------------------------
+      # Start backend
+      # -----------------------------
       - name: Start backend
         working-directory: ./backend
         env:
@@ -63,6 +84,9 @@ jobs:
         run: |
           uvicorn app.main:app --host 0.0.0.0 --port 8000 &
 
+      # -----------------------------
+      # Start frontend
+      # -----------------------------
       - name: Start frontend
         working-directory: ./frontend
         env:
@@ -71,12 +95,18 @@ jobs:
           npm run build
           npm start &
 
+      # -----------------------------
+      # Wait for servers
+      # -----------------------------
       - name: Wait for servers to start
         run: |
-          sleep 15
+          sleep 20
           curl -f http://localhost:8000/health || exit 1
           curl -f http://localhost:3000 || exit 1
 
+      # -----------------------------
+      # Run E2E Selenium Tests
+      # -----------------------------
       - name: Run backend Selenium tests
         working-directory: ./backend
         env:
