@@ -1,0 +1,71 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: taskleaf-db
+    environment:
+      POSTGRES_USER: taskleaf
+      POSTGRES_PASSWORD: taskleaf123
+      POSTGRES_DB: taskleaf_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskleaf -d taskleaf_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - taskleaf-network
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: taskleaf-backend
+    environment:
+      DATABASE_URL: postgresql://taskleaf:taskleaf123@db:5432/taskleaf_db
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key-change-in-production-min-32-chars-long}
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:8000
+      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    networks:
+      - taskleaf-network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: taskleaf-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - taskleaf-network
+    command: npm run dev
+
+volumes:
+  postgres_data:
+
+networks:
+  taskleaf-network:
+    driver: bridge

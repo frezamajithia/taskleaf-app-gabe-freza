@@ -1,0 +1,761 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================
+   TASKLEAF - PREMIUM GLASS UI
+   Beautiful light & dark modes
+   =========================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ===========================================
+   BASE LAYER - GLOBAL STYLES
+   =========================================== */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-['Inter'] antialiased;
+    background: linear-gradient(135deg, #F4F9F8 0%, #ffffff 50%, #f0fdfa 100%);
+    @apply text-patina-900;
+    @apply transition-colors duration-300;
+    @apply min-h-screen;
+  }
+
+  /* Dark mode background - Deep teal gradient */
+  .dark body {
+    background: linear-gradient(135deg, #030712 0%, #1a2928 50%, #030712 100%) !important;
+    @apply text-teal-50;
+  }
+
+  /* Headings */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-patina-800;
+  }
+
+  .dark h1,
+  .dark h2,
+  .dark h3,
+  .dark h4,
+  .dark h5,
+  .dark h6 {
+    @apply text-teal-100;
+  }
+
+  /* Links */
+  a {
+    @apply text-patina-600 hover:text-patina-700 transition-colors;
+  }
+
+  .dark a {
+    @apply text-teal-400 hover:text-teal-300;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-patina-100/30 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-patina-400/40 rounded-full hover:bg-patina-500/50;
+  }
+
+  .dark ::-webkit-scrollbar-track {
+    @apply bg-gray-900/30;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    @apply bg-teal-500/40 hover:bg-teal-400/60;
+  }
+
+  /* shadcn/ui CSS Variables */
+  :root {
+    /* Teal/Patina Light Theme */
+    --background: 174 40% 97%;
+    --foreground: 174 25% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 174 25% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 174 25% 20%;
+    --primary: 174 45% 48%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 174 40% 90%;
+    --secondary-foreground: 174 25% 20%;
+    --muted: 174 30% 94%;
+    --muted-foreground: 174 15% 45%;
+    --accent: 174 70% 70%;
+    --accent-foreground: 174 25% 15%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 174 30% 85%;
+    --input: 174 30% 90%;
+    --ring: 174 45% 48%;
+    --radius: 1rem;
+
+    /* Chart colors */
+    --chart-1: 174 70% 70%;
+    --chart-2: 174 60% 60%;
+    --chart-3: 174 50% 50%;
+    --chart-4: 174 40% 40%;
+    --chart-5: 174 30% 30%;
+  }
+
+  .dark {
+    /* Premium Dark Theme with Teal Accents */
+    --background: 174 50% 4%;
+    --foreground: 174 15% 95%;
+    --card: 174 40% 8%;
+    --card-foreground: 174 15% 95%;
+    --popover: 174 45% 6%;
+    --popover-foreground: 174 15% 95%;
+    --primary: 174 70% 60%;
+    --primary-foreground: 174 40% 5%;
+    --secondary: 174 30% 12%;
+    --secondary-foreground: 174 15% 95%;
+    --muted: 174 25% 15%;
+    --muted-foreground: 174 10% 65%;
+    --accent: 174 60% 50%;
+    --accent-foreground: 174 15% 95%;
+    --destructive: 0 63% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 174 30% 18%;
+    --input: 174 30% 15%;
+    --ring: 174 60% 50%;
+
+    /* Chart colors for dark mode */
+    --chart-1: 174 70% 60%;
+    --chart-2: 174 60% 55%;
+    --chart-3: 174 50% 50%;
+    --chart-4: 174 40% 45%;
+    --chart-5: 174 30% 40%;
+  }
+}
+
+/* ===========================================
+   COMPONENT LAYER - REUSABLE PATTERNS
+   =========================================== */
+
+@layer components {
+  /* Glass Card - Premium frosted glass effect */
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-xl border border-white/40;
+    @apply shadow-xl rounded-3xl;
+    @apply transition-all duration-300;
+  }
+
+  .dark .glass-card {
+    background: linear-gradient(135deg, rgba(19, 78, 74, 0.2) 0%, rgba(38, 59, 57, 0.15) 50%, rgba(17, 94, 89, 0.1) 100%);
+    @apply backdrop-blur-2xl border border-teal-700/30;
+    @apply shadow-2xl shadow-black/40;
+  }
+
+  /* Glass Sidebar */
+  .glass-sidebar {
+    @apply bg-white/60 backdrop-blur-2xl;
+    @apply border-r border-patina-200/30;
+    @apply transition-all duration-300;
+  }
+
+  .dark .glass-sidebar {
+    background: linear-gradient(180deg, rgba(3, 7, 18, 0.8) 0%, rgba(26, 41, 40, 0.7) 50%, rgba(3, 7, 18, 0.8) 100%);
+    @apply backdrop-blur-2xl border-r border-teal-800/20;
+  }
+
+  /* Glass Navigation */
+  .glass-nav {
+    @apply bg-white/70 backdrop-blur-xl;
+    @apply border-b border-patina-200/30;
+    @apply shadow-sm;
+  }
+
+  .dark .glass-nav {
+    background: linear-gradient(90deg, rgba(3, 7, 18, 0.9) 0%, rgba(26, 41, 40, 0.8) 50%, rgba(3, 7, 18, 0.9) 100%);
+    @apply backdrop-blur-xl border-b border-teal-800/20;
+    @apply shadow-lg shadow-black/20;
+  }
+
+  /* Sidebar Item */
+  .sidebar-item {
+    @apply flex items-center gap-4 w-full px-6 py-5;
+    @apply text-patina-600 rounded-2xl;
+    @apply transition-all duration-200;
+    @apply hover:bg-patina-100/60 hover:text-patina-800;
+  }
+
+  .dark .sidebar-item {
+    @apply text-teal-300/70;
+    @apply hover:text-teal-200;
+  }
+
+  .dark .sidebar-item:hover {
+    background: linear-gradient(90deg, rgba(20, 184, 166, 0.1) 0%, rgba(73, 131, 124, 0.05) 100%);
+  }
+
+  .sidebar-item-active {
+    @apply bg-gradient-to-r from-patina-100 to-teal-100/50;
+    @apply text-patina-800 font-medium;
+  }
+
+  .dark .sidebar-item-active {
+    background: linear-gradient(90deg, rgba(20, 184, 166, 0.2) 0%, rgba(73, 131, 124, 0.1) 100%);
+    @apply text-teal-200;
+    @apply shadow-lg shadow-teal-500/10;
+  }
+
+  /* Icon Button */
+  .icon-btn {
+    @apply p-3 rounded-full transition-all duration-200;
+    @apply hover:bg-patina-100/60 active:scale-95;
+  }
+
+  .dark .icon-btn {
+    @apply hover:bg-teal-500/10 hover:text-teal-400;
+    @apply active:bg-teal-500/20;
+  }
+
+  /* Card with hover effect */
+  .card-hover {
+    @apply transition-all duration-300;
+    @apply hover:shadow-2xl hover:-translate-y-1;
+  }
+
+  .dark .card-hover:hover {
+    @apply shadow-teal-500/20;
+  }
+
+  /* Priority Badges */
+  .badge-high {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium;
+    @apply bg-red-100 text-red-700 border border-red-200;
+  }
+
+  .dark .badge-high {
+    @apply bg-red-500/20 text-red-300 border-red-500/30;
+    @apply shadow-sm shadow-red-500/10;
+  }
+
+  .badge-medium {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium;
+    @apply bg-amber-100 text-amber-700 border border-amber-200;
+  }
+
+  .dark .badge-medium {
+    @apply bg-amber-500/20 text-amber-300 border-amber-500/30;
+    @apply shadow-sm shadow-amber-500/10;
+  }
+
+  .badge-low {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium;
+    @apply bg-green-100 text-green-700 border border-green-200;
+  }
+
+  .dark .badge-low {
+    @apply bg-green-500/20 text-green-300 border-green-500/30;
+    @apply shadow-sm shadow-green-500/10;
+  }
+
+  /* Premium Modal Styling */
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .dark .modal-overlay {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(12px);
+  }
+
+  .modal-content {
+    @apply relative rounded-2xl p-8 max-w-lg w-full;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    @apply border border-patina-200/50;
+    @apply shadow-2xl;
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .dark .modal-content {
+    background: rgba(15, 118, 110, 0.15);
+    backdrop-filter: blur(30px);
+    @apply border border-teal-700/50;
+    @apply shadow-2xl shadow-black/60;
+  }
+
+  .modal-header {
+    @apply flex items-center justify-between mb-6 pb-4;
+    @apply border-b border-patina-200/50;
+  }
+
+  .dark .modal-header {
+    @apply border-b border-teal-700/30;
+  }
+
+  .modal-title {
+    @apply text-2xl font-bold text-patina-800;
+  }
+
+  .dark .modal-title {
+    @apply text-teal-100;
+  }
+
+  .modal-close-btn {
+    @apply p-2 rounded-lg transition-all;
+    @apply text-patina-500 hover:text-patina-700;
+    @apply hover:bg-patina-100/50;
+  }
+
+  .dark .modal-close-btn {
+    @apply text-teal-400 hover:text-teal-200;
+    @apply hover:bg-teal-500/20;
+  }
+
+  /* Checkbox styling for dark mode */
+  input[type="checkbox"] {
+    accent-color: #49837C; /* patina-500 */
+    @apply cursor-pointer w-5 h-5 rounded;
+    filter: brightness(1) saturate(1.2);
+  }
+
+  .dark input[type="checkbox"] {
+    accent-color: #2dd4bf; /* teal-400 - brighter for visibility */
+    filter: brightness(1.4) saturate(1.5);
+  }
+
+  input[type="checkbox"]:checked {
+    animation: checkboxWhoosh 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes checkboxWhoosh {
+    0% {
+      transform: scale(0.8);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}
+
+/* ===========================================
+   UTILITY LAYER - ANIMATIONS & HELPERS
+   =========================================== */
+
+@layer utilities {
+  /* Whoosh animation for task completion */
+  @keyframes whoosh {
+    0% {
+      transform: scaleX(0);
+      transform-origin: left;
+      opacity: 0.5;
+    }
+    60% {
+      transform: scaleX(1.05);
+      opacity: 1;
+    }
+    100% {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+  }
+
+  .animate-whoosh {
+    animation: whoosh 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Fade in animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  /* Glow effect */
+  .glow-teal {
+    @apply shadow-lg shadow-teal-500/20;
+  }
+
+  .dark .glow-teal {
+    @apply shadow-xl shadow-teal-500/40;
+  }
+}
+
+/* ===========================================
+   SPECIFIC COMPONENT STYLES
+   =========================================== */
+
+/* Text color overrides for dark mode */
+.dark .text-patina-700,
+.dark .text-patina-800,
+.dark .text-patina-900 {
+  @apply text-teal-100;
+}
+
+.dark .text-patina-600 {
+  @apply text-teal-200;
+}
+
+.dark .text-patina-500 {
+  @apply text-teal-300;
+}
+
+.dark .text-patina-400 {
+  @apply text-teal-400;
+}
+
+/* Metric cards - for Analytics */
+.metric-card {
+  @apply glass-card p-6 card-hover;
+}
+
+/* Stat cards */
+.stat-card {
+  @apply glass-card p-6;
+}
+
+/* Task cards */
+.task-card {
+  @apply glass-card p-6 cursor-pointer;
+  @apply hover:ring-2 hover:ring-patina-300/50;
+}
+
+.dark .task-card {
+  @apply hover:ring-teal-500/40;
+}
+
+/* Calendar specific */
+.calendar-day {
+  @apply aspect-square p-2 rounded-xl border border-patina-100/50;
+  @apply transition-all duration-200;
+  @apply hover:bg-patina-50/50 hover:border-patina-300;
+}
+
+.dark .calendar-day {
+  @apply border-teal-700/30;
+  @apply hover:bg-teal-500/10 hover:border-teal-500/40;
+}
+
+.calendar-day-today {
+  @apply border-2 border-teal-500 bg-teal-50;
+}
+
+.dark .calendar-day-today {
+  @apply bg-teal-500/20 border-teal-500;
+  @apply shadow-lg shadow-teal-500/20;
+}
+
+/* Notification panel */
+.notification-panel {
+  @apply glass-card p-0 w-80 max-w-sm;
+  @apply animate-fade-in;
+}
+
+.notification-item {
+  @apply p-4 border-b border-gray-100 last:border-0;
+  @apply transition-colors duration-200;
+  @apply hover:bg-patina-50;
+}
+
+.dark .notification-item {
+  @apply border-teal-800/20;
+  @apply hover:bg-teal-500/5;
+}
+
+/* FAB (Floating Action Button) */
+.fab {
+  @apply fixed bottom-8 right-8 w-16 h-16;
+  @apply bg-gradient-to-br from-patina-500 to-teal-600;
+  @apply text-white rounded-2xl shadow-xl;
+  @apply flex items-center justify-center;
+  @apply transition-all duration-300;
+  @apply hover:scale-110 hover:shadow-2xl hover:shadow-patina-500/30;
+  @apply active:scale-95;
+  @apply z-50;
+}
+
+.dark .fab {
+  @apply from-teal-500 to-patina-600;
+  @apply shadow-xl shadow-teal-500/30;
+  @apply hover:shadow-2xl hover:shadow-teal-500/50;
+}
+
+/* Progress bars */
+.progress-bar {
+  @apply h-2 rounded-full;
+  @apply bg-gradient-to-r from-teal-400 to-patina-500;
+  @apply animate-whoosh;
+  transition: width 0.5s ease-out;
+}
+
+.progress-bar-bg {
+  @apply h-2 rounded-full bg-patina-100;
+}
+
+.dark .progress-bar-bg {
+  @apply bg-teal-900/30;
+}
+
+/* Profile ring */
+.profile-ring {
+  @apply rounded-full ring-2 ring-patina-300 ring-offset-2;
+}
+
+.dark .profile-ring {
+  @apply ring-teal-500/50 ring-offset-gray-950;
+}
+
+/* Glass button */
+.glass-button {
+  @apply px-6 py-3 rounded-xl;
+  @apply bg-white/80 backdrop-blur-md border border-patina-200;
+  @apply text-patina-700 font-medium;
+  @apply transition-all duration-200;
+  @apply hover:bg-white hover:shadow-lg;
+  @apply active:scale-95;
+}
+
+.dark .glass-button {
+  @apply bg-teal-500/10 backdrop-blur-md border-teal-600/30;
+  @apply text-teal-200;
+  @apply hover:bg-teal-500/20 hover:border-teal-500/50;
+}
+
+/* Input fields */
+.input {
+  @apply w-full px-4 py-3 rounded-xl;
+  @apply bg-white border border-patina-200;
+  @apply text-patina-900 placeholder:text-patina-400;
+  @apply transition-all duration-200;
+  @apply focus:border-patina-500 focus:ring-2 focus:ring-patina-200;
+  @apply focus:outline-none;
+}
+
+.dark .input {
+  @apply bg-teal-950/30 backdrop-blur-sm border-teal-700/40;
+  @apply text-teal-100 placeholder:text-teal-500/50;
+  @apply focus:border-teal-500 focus:ring-teal-500/20;
+}
+
+/* Chart containers */
+.chart-container {
+  @apply rounded-2xl p-6;
+}
+
+/* Select dropdowns */
+.dark select {
+  @apply bg-teal-950/30 border-teal-700/40 text-teal-100;
+}
+
+/* Buttons */
+.dark button {
+  @apply transition-all duration-200;
+}
+
+/* Better text contrast in dark mode */
+.dark .text-gray-600 {
+  @apply text-teal-300;
+}
+
+.dark .text-gray-500 {
+  @apply text-teal-400;
+}
+
+.dark .text-gray-400 {
+  @apply text-teal-500;
+}
+
+/* AGGRESSIVE DARK MODE OVERRIDES */
+/* These override ALL inline styles to ensure dark mode works everywhere */
+
+.dark div[class*="bg-gradient"],
+.dark div[class*="from-patina"],
+.dark div[class*="from-white"],
+.dark div[class*="via-white"],
+.dark div[class*="to-patina"] {
+  background: transparent !important;
+}
+
+/* Don't override elements with explicit dark: classes */
+.dark .bg-white:not([class*="dark:"]) {
+  background-color: transparent !important;
+}
+
+.dark .bg-gray-50:not([class*="dark:"]),
+.dark .bg-gray-100:not([class*="dark:"]) {
+  background-color: rgba(17, 24, 39, 0.3) !important;
+}
+
+.dark .bg-gray-200:not([class*="dark:"]) {
+  background-color: rgba(31, 41, 55, 0.4) !important;
+}
+
+/* Specific fix for settings fields */
+.dark div[class*="dark:!bg-teal"] {
+  background-color: inherit !important;
+}
+
+/* Override all borders in dark mode */
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: rgba(15, 118, 110, 0.3) !important;
+}
+
+.dark .border-patina-100,
+.dark .border-patina-200 {
+  border-color: rgba(15, 118, 110, 0.2) !important;
+}
+
+/* Fix ALL background gradients in dark mode */
+.dark [class*="from-patina"],
+.dark [class*="from-white"],
+.dark [class*="via-white"],
+.dark [class*="via-patina"],
+.dark [class*="to-patina"],
+.dark [class*="to-white"] {
+  background: transparent !important;
+}
+
+/* Input and form elements dark mode */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="time"],
+.dark input[type="date"],
+.dark input[type="datetime-local"],
+.dark textarea,
+.dark select {
+  @apply bg-teal-950/30 border-teal-700/40 text-teal-100;
+  @apply placeholder:text-teal-500/50;
+  color-scheme: dark;
+}
+
+.dark input[type="text"]:focus,
+.dark input[type="email"]:focus,
+.dark input[type="password"]:focus,
+.dark input[type="time"]:focus,
+.dark input[type="date"]:focus,
+.dark input[type="datetime-local"]:focus,
+.dark textarea:focus,
+.dark select:focus {
+  @apply border-teal-500 ring-teal-500/20;
+}
+
+/* Tab buttons dark mode */
+.dark button[class*="text-patina"] {
+  @apply text-teal-300;
+}
+
+.dark button[class*="bg-patina"] {
+  background: linear-gradient(90deg, rgba(20, 184, 166, 0.15) 0%, rgba(73, 131, 124, 0.1) 100%) !important;
+  @apply text-teal-200;
+}
+
+/* Universal card styling in dark mode */
+.dark div[class*="rounded-"],
+.dark div[class*="shadow-"] {
+  transition: all 0.3s ease;
+}
+
+/* Override card backgrounds */
+.dark .bg-white\/70,
+.dark .bg-white\/60,
+.dark .bg-white\/80,
+.dark .bg-white\/90 {
+  background:  linear-gradient(135deg, rgba(19, 78, 74, 0.2) 0%, rgba(38, 59, 57, 0.15) 50%, rgba(17, 94, 89, 0.1) 100%) !important;
+  @apply backdrop-blur-2xl;
+}
+
+
+/* Fix text colors that might be using patina in dark mode */
+.dark span[class*="text-patina-7"],
+.dark span[class*="text-patina-8"],
+.dark span[class*="text-patina-9"],
+.dark p[class*="text-patina-7"],
+.dark p[class*="text-patina-8"],
+.dark p[class*="text-patina-9"],
+.dark h1[class*="text-patina"],
+.dark h2[class*="text-patina"],
+.dark h3[class*="text-patina"],
+.dark h4[class*="text-patina"],
+.dark h5[class*="text-patina"],
+.dark h6[class*="text-patina"] {
+  color: rgb(204, 251, 241) !important; /* teal-100 */
+}
+
+.dark span[class*="text-patina-5"],
+.dark span[class*="text-patina-6"],
+.dark p[class*="text-patina-5"],
+.dark p[class*="text-patina-6"] {
+  color: rgb(153, 246, 228) !important; /* teal-200 */
+}
+
+/* Button Classes */
+.btn-primary {
+  @apply bg-gradient-to-br from-patina-500 to-teal-600 text-white;
+  @apply hover:from-patina-600 hover:to-teal-700;
+  @apply active:scale-95 transition-all duration-200;
+  @apply font-medium shadow-lg;
+}
+
+.dark .btn-primary {
+  @apply from-teal-600 to-teal-700;
+  @apply hover:from-teal-500 hover:to-teal-600;
+  @apply shadow-teal-500/30;
+}
+
+.btn-secondary {
+  @apply bg-white/60 backdrop-blur-sm border border-patina-200/50;
+  @apply text-patina-700;
+  @apply hover:bg-white/80 hover:border-patina-300/60;
+  @apply active:scale-95 transition-all duration-200;
+  @apply font-medium;
+}
+
+.dark .btn-secondary {
+  @apply bg-teal-950/30 border-teal-700/40;
+  @apply text-teal-200;
+  @apply hover:bg-teal-950/50 hover:border-teal-600/50;
+}
