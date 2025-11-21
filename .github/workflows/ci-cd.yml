@@ -44,12 +44,13 @@ jobs:
       env:
         DATABASE_URL: postgresql://taskleaf:taskleaf123@localhost:5432/taskleaf_test
         SECRET_KEY: test-secret-key-min-32-chars-long-for-testing
+        ALGORITHM: HS256
+        OPENWEATHER_API_KEY: dummy-weather-key
         GOOGLE_CLIENT_ID: dummy-client-id
         GOOGLE_CLIENT_SECRET: dummy-client-secret
-        WEATHER_API_KEY: dummy-weather-key
       run: |
         pytest app/tests/ -v --tb=short
-
+        
   test-frontend:
     runs-on: ubuntu-latest
 
