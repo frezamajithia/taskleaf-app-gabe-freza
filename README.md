@@ -21,6 +21,13 @@ TaskLeaf is a comprehensive task and calendar management solution that demonstra
 - **Theme Support:** Light and dark mode with smooth transitions
 - **Responsive Design:** Mobile-first design that works on all device sizes
 
+### Mock Features and Improvements:
+
+- **Mock Notifications Panel:** Shows how the notifications would show if integrated with the backend.
+- **Mock Settings Tab:** The current Settings tab is interactive and lets the use switch themes. A more comprehensive one would need implementation.
+- **Mock Analytics Tab:** The current Analytics is great for demonstration, though ideally it would fetch the sample data in real time as a user uses the application more.
+- **Additional Themes/UI Polishes:** The overall UI could be improved to have more themes, and/or have a more premium feel.
+
 ## Technology Stack
 
 ### Frontend
@@ -203,18 +210,12 @@ docker-compose exec backend pytest app/tests/ -v
 ## Team Members & Contributions
 
 **Team Members:**
-- [Member Name] - [Role/Contribution]
-- [Member Name] - [Role/Contribution]
-- [Member Name] - [Role/Contribution]
-
-**Contribution Breakdown:**
-- [Feature/Area] - [Member Name]
-- [Feature/Area] - [Member Name]
-- [Feature/Area] - [Member Name]
+- Gabe Manaog - 50% (all areas)
+- Freza Majithia - 50% (all areas)
 
 ## Acknowledgments
 
-Built by Freza Majithia &  for CSCI 4230U Advanced Web Development at Ontario Tech University
+Built by Freza Majithia & Gabe Manaog for CSCI 4230U Advanced Web Development Final Project at Ontario Tech University
 
 ## License
 
