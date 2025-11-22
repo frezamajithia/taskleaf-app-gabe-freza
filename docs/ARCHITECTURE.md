@@ -12,7 +12,7 @@ TaskLeaf implements a **Three-Tier Architecture** pattern, providing clear separ
 
 ## System Architecture Diagram
 
-![System Architecture Diagram](docs/System-Architecture-Diagram.png)
+![System Architecture Diagram](System-Architecture-Diagram.png)
 
 ## Separation of Concerns
 
@@ -65,21 +65,21 @@ TaskLeaf implements a **Three-Tier Architecture** pattern, providing clear separ
 
 ## UML Package Diagram
 
-![UML Package Diagram](docs/UML-package)
+![UML Package Diagram](UML-package)
 
 ## UML Class Diagram
 
-![UML Class Diagram](docs/UML-Class)
+![UML Class Diagram](UML-Class)
 
 ## Request/Response Flow Diagram
 
 ### Authentication Flow
 
-![Authentication Flow](docs/Authentication-Flow)
+![Authentication Flow](Authentication-Flow)
 
 ### Task Creation with Weather Integration
 
-![Task Creation+Weather](docs/Task-Creation-Weather)
+![Task Creation+Weather](Task-Creation-Weather)
 
 ## Database Schema and Relationships
 
@@ -292,5 +292,5 @@ Docker Compose Local Environment
 **Document Purpose:** This document serves as the architectural reference for the TaskLeaf application, demonstrating clear three-tier architecture implementation with proper separation of concerns, comprehensive UML diagrams, and production-ready design patterns for CSCI 4230U Advanced Web Development.
 
 **Document Version:** 2.0
-**Last Updated:** November 2024
-**Author:** TaskLeaf Development Team
+**Last Updated:** November 2025
+**Author:** TaskLeaf Development Team: Freza & Gabe
