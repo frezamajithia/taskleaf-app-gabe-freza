@@ -176,6 +176,10 @@ Run tests:
 ```bash
 docker-compose exec backend pytest app/tests/ -v
 ```
+## Performance Optimization
+
+### Google PageSpeed Insights Report (Desktop)
+https://pagespeed.web.dev/analysis/https-taskleaf-app-gabe-freza-vercel-app/z9k338wxhy?form_factor=desktop
 
 ## Database Schema
 
