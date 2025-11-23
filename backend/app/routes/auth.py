@@ -228,7 +228,8 @@ async def google_callback(request: Request, response: Response, db: Session = De
         # Debug: print what we got from Google
         print(f"[DEBUG] User info from Google: {user_info}")
 
-        google_id = user_info.get('sub')
+        # Google's userinfo endpoint returns 'id', not 'sub'
+        google_id = user_info.get('sub') or user_info.get('id')
         email = user_info.get('email')
         full_name = user_info.get('name')
         profile_picture = user_info.get('picture')
