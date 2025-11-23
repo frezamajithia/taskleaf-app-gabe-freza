@@ -6,7 +6,7 @@ A modern full-stack web application for calendar and task management with integr
 
 ## Project Overview
 
-TaskLeaf is a comprehensive task and calendar management solution that demonstrates modern web development practices including three-tier architecture, RESTful API design, JWT authentication, external API integration, and containerized deployment.
+TaskLeaf is a comprehensive task and calendar management solution, much like some popular ones out there, that demonstrates modern web development practices including three-tier architecture, RESTful API design, JWT authentication, external API integration, and containerized deployment.
 
 ### Key Features
 
