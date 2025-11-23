@@ -24,7 +24,11 @@ app = FastAPI(
 # Add session middleware (required for OAuth)
 app.add_middleware(
     SessionMiddleware,
-    secret_key=settings.SECRET_KEY
+    secret_key=settings.SECRET_KEY,
+    session_cookie="session",
+    max_age=14 * 24 * 60 * 60,  # 14 days
+    same_site="lax",
+    https_only=not settings.DEBUG  # True in production, False in dev
 )
 
 # Configure CORS
