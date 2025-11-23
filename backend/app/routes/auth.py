@@ -225,10 +225,15 @@ async def google_callback(request: Request, response: Response, db: Session = De
                 detail="Failed to get user info from Google"
             )
 
+        # Debug: print what we got from Google
+        print(f"[DEBUG] User info from Google: {user_info}")
+
         google_id = user_info.get('sub')
         email = user_info.get('email')
         full_name = user_info.get('name')
         profile_picture = user_info.get('picture')
+
+        print(f"[DEBUG] Extracted - google_id: {google_id}, email: {email}, full_name: {full_name}")
 
         if not email or not google_id:
             raise HTTPException(
