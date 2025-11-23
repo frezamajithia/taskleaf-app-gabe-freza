@@ -1,4 +1,4 @@
-# TaskLeaf - Calendar & Task Management Application
+# TaskLeaf - Calendar & Task Management Web Application
 
 A modern full-stack web application for calendar and task management with integrated weather forecasting and Google Calendar synchronization.
 
