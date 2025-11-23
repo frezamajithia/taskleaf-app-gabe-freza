@@ -292,6 +292,10 @@ async def google_callback(request: Request, response: Response, db: Session = De
         return RedirectResponse(url=redirect_url)
 
     except Exception as e:
+        import traceback
         print(f"Google OAuth error: {e}")
+        print(f"Error type: {type(e).__name__}")
+        print(f"Full traceback:")
+        traceback.print_exc()
         # Redirect to login page with error
         return RedirectResponse(url=f"{settings.FRONTEND_URL}/login?error=oauth_failed")
