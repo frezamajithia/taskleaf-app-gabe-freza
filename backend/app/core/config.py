@@ -37,6 +37,9 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: str = ""
     GOOGLE_REDIRECT_URI: str = ""
 
+    # Frontend URL (for OAuth redirects)
+    FRONTEND_URL: str = "http://localhost:3000"
+
     @property
     def cors_origins(self) -> List[str]:
         """Convert comma-separated string to list"""
