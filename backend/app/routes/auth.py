@@ -256,11 +256,11 @@ async def google_callback(request: Request, response: Response, db: Session = De
             "created_at": user_data.created_at.isoformat() if user_data.created_at else None,
             "profile_picture": user.profile_picture
         }))
-        redirect_url = f"http://localhost:3000/auth/callback?token={access_token}&user={user_json}"
+        redirect_url = f"{settings.FRONTEND_URL}/auth/callback?token={access_token}&user={user_json}"
 
         return RedirectResponse(url=redirect_url)
 
     except Exception as e:
         print(f"Google OAuth error: {e}")
         # Redirect to login page with error
-        return RedirectResponse(url="http://localhost:3000/login?error=oauth_failed")
+        return RedirectResponse(url=f"{settings.FRONTEND_URL}/login?error=oauth_failed")
