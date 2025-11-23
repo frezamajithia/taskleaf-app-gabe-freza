@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/lib/store';
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { register, error, isLoading, clearError } = useAuthStore();
@@ -184,7 +184,7 @@ export default function RegisterPage() {
 
               <button
                 type="button"
-                onClick={() => window.location.href = 'http://localhost:8000/api/auth/google/login'}
+                onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/google/login`}
                 className="w-full bg-white hover:bg-gray-50 text-patina-700 font-semibold py-2.5 rounded-xl border border-patina-200 transition-all shadow-md hover:shadow-lg flex items-center justify-center"
               >
                 <i className="fa-brands fa-google text-red-500 mr-2"></i>
@@ -204,5 +204,17 @@ export default function RegisterPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen bg-gradient-to-br from-patina-50 to-patina-100 items-center justify-center">
+        <div className="text-patina-600">Loading...</div>
+      </div>
+    }>
+      <RegisterForm />
+    </Suspense>
   );
 }
