@@ -179,22 +179,38 @@ async def google_callback(request: Request, response: Response, db: Session = De
     """
     try:
         # Get access token from Google
-        # Note: State verification might fail in distributed environments
-        try:
-            token = await oauth.google.authorize_access_token(request)
-        except Exception as state_error:
-            if "mismatching_state" in str(state_error):
-                # Manually fetch token without state verification
-                # This is acceptable for development/small projects
-                code = request.query_params.get('code')
-                if not code:
-                    raise HTTPException(status_code=400, detail="No authorization code provided")
-                token = await oauth.google.fetch_token(
-                    authorization_response=str(request.url),
-                    grant_type='authorization_code'
-                )
-            else:
-                raise
+        # Note: State verification fails in distributed environments (Railway)
+        # So we manually fetch the token using the authorization code
+        code = request.query_params.get('code')
+        if not code:
+            raise HTTPException(status_code=400, detail="No authorization code provided")
+
+        # Fetch token directly from Google's token endpoint
+        # This bypasses session-based state verification
+        import httpx
+        token_endpoint = 'https://oauth2.googleapis.com/token'
+        async with httpx.AsyncClient() as client:
+            token_response = await client.post(
+                token_endpoint,
+                data={
+                    'code': code,
+                    'client_id': settings.GOOGLE_CLIENT_ID,
+                    'client_secret': settings.GOOGLE_CLIENT_SECRET,
+                    'redirect_uri': settings.GOOGLE_REDIRECT_URI,
+                    'grant_type': 'authorization_code',
+                }
+            )
+            token = token_response.json()
+
+        # Also fetch user info
+        userinfo_endpoint = 'https://www.googleapis.com/oauth2/v2/userinfo'
+        async with httpx.AsyncClient() as client:
+            userinfo_response = await client.get(
+                userinfo_endpoint,
+                headers={'Authorization': f"Bearer {token['access_token']}"}
+            )
+            token['userinfo'] = userinfo_response.json()
+
         refresh_token = token.get("refresh_token")
 
         # Debug logging
