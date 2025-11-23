@@ -27,8 +27,8 @@ app.add_middleware(
     secret_key=settings.SECRET_KEY,
     session_cookie="session",
     max_age=14 * 24 * 60 * 60,  # 14 days
-    same_site="lax",
-    https_only=not settings.DEBUG  # True in production, False in dev
+    same_site="none",  # Required for OAuth redirect flow to work
+    https_only=True  # Always use secure cookies
 )
 
 # Configure CORS
