@@ -145,7 +145,7 @@ function LoginForm() {
 
               <button
                 type="button"
-                onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/google/login`}
+                onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/auth/google/login`}
                 className="w-full bg-white hover:bg-gray-50 text-patina-700 font-semibold py-2.5 rounded-xl border border-patina-200 transition-all shadow-md hover:shadow-lg flex items-center justify-center"
               >
                 <i className="fa-brands fa-google text-red-500 mr-2"></i>

@@ -25,13 +25,10 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: taskleaf-backend
+    env_file:
+      - ./backend/.env
     environment:
       DATABASE_URL: postgresql://taskleaf:taskleaf123@db:5432/taskleaf_db
-      SECRET_KEY: ${SECRET_KEY:-your-secret-key-change-in-production-min-32-chars-long}
-      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:8000
-      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY:-}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
     ports:
       - "8000:8000"
     depends_on:
