@@ -1,3 +1,4 @@
+```mermaid
 flowchart TD
     Start([User Opens Calendar View]) --> CheckAuth{JWT Token Valid?}
     
@@ -180,3 +181,4 @@ flowchart TD
     style PostToGoogle fill:#4285F4,color:#fff
     style PatchGoogleAPI fill:#4285F4,color:#fff
     style DeleteGoogleAPI fill:#4285F4,color:#fff
+```
