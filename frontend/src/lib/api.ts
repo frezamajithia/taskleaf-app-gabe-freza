@@ -3,9 +3,9 @@
  */
 import axios from 'axios';
 
-// Ensure the base URL always ends with /api
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-const API_URL = `${BACKEND_URL.replace(/\/$/, '')}/api`;
+// Use the API URL directly from environment variable
+// The URL should already include /api path (e.g., http://localhost:8000/api)
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 export const api = axios.create({
   baseURL: API_URL,
