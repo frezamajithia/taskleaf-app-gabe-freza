@@ -44,36 +44,62 @@ api.interceptors.response.use(
 export const authAPI = {
   register: (data: { email: string; password: string; full_name?: string }) =>
     api.post('/auth/register', data),
-  
+
   login: (data: { email: string; password: string }) =>
     api.post('/auth/login', data),
-  
+
   logout: () =>
     api.post('/auth/logout'),
-  
+
   getCurrentUser: () =>
     api.get('/auth/me'),
+
+  // Password reset
+  requestPasswordReset: (email: string) =>
+    api.post('/auth/forgot-password', { email }),
+
+  resetPassword: (token: string, newPassword: string) =>
+    api.post('/auth/reset-password', { token, new_password: newPassword }),
 };
+
+// Task data interface
+export interface TaskData {
+  title: string;
+  description?: string;
+  date?: string;
+  time?: string;
+  priority?: string;
+  location?: string;
+  category_id?: number;
+  sync_with_google_calendar?: boolean;
+}
 
 // Tasks API
 export const tasksAPI = {
   getAll: (params?: { completed?: boolean; skip?: number; limit?: number }) =>
     api.get('/tasks/', { params }),
-  
+
   getById: (id: number) =>
     api.get(`/tasks/${id}`),
-  
-  create: (data: any) =>
+
+  create: (data: TaskData) =>
     api.post('/tasks/', data),
-  
-  update: (id: number, data: any) =>
+
+  update: (id: number, data: Partial<TaskData> & { completed?: boolean }) =>
     api.put(`/tasks/${id}`, data),
-  
+
   delete: (id: number) =>
     api.delete(`/tasks/${id}`),
-  
+
   getStats: () =>
     api.get('/tasks/stats/summary'),
+
+  // Google Calendar sync
+  syncToCalendar: (id: number) =>
+    api.post(`/tasks/${id}/sync-to-calendar`),
+
+  unsyncFromCalendar: (id: number) =>
+    api.delete(`/tasks/${id}/unsync-from-calendar`),
 };
 
 // Categories API
@@ -85,10 +111,37 @@ export const categoriesAPI = {
     api.post('/tasks/categories', data),
 };
 
+// Calendar event data interface
+export interface CalendarEventData {
+  title: string;
+  description?: string;
+  date?: string;
+  time?: string;
+  location?: string;
+  recurrence?: string;  // none, daily, weekly, monthly, yearly
+}
+
 // Calendar API
 export const calendarAPI = {
+  // Get events from Google Calendar
   getEvents: (params?: { timeMin?: string; timeMax?: string }) =>
     api.get('/calendar/events', { params }),
+
+  // Create event in Google Calendar
+  createEvent: (data: CalendarEventData) =>
+    api.post('/calendar/events', data),
+
+  // Update event in Google Calendar
+  updateEvent: (eventId: string, data: CalendarEventData) =>
+    api.put(`/calendar/events/${eventId}`, data),
+
+  // Delete event from Google Calendar
+  deleteEvent: (eventId: string) =>
+    api.delete(`/calendar/events/${eventId}`),
+
+  // Check if Google Calendar is connected
+  getStatus: () =>
+    api.get('/calendar/status'),
 
   // Google OAuth login URL
   getGoogleLoginUrl: () => `${API_URL}/auth/google/login`,

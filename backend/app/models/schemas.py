@@ -65,6 +65,7 @@ class TaskBase(BaseModel):
     priority: str = "medium"
     location: Optional[str] = None
     category_id: Optional[int] = None
+    sync_with_google_calendar: bool = False
 
 
 class TaskCreate(TaskBase):
@@ -80,6 +81,7 @@ class TaskUpdate(BaseModel):
     priority: Optional[str] = None
     location: Optional[str] = None
     category_id: Optional[int] = None
+    sync_with_google_calendar: Optional[bool] = None
 
 
 class TaskResponse(TaskBase):
@@ -87,9 +89,10 @@ class TaskResponse(TaskBase):
     completed: bool
     weather_data: Optional[dict] = None
     category: Optional[CategoryResponse] = None
+    google_calendar_event_id: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
 

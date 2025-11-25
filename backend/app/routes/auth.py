@@ -4,7 +4,10 @@ Authentication routes
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-from datetime import timedelta
+from datetime import timedelta, datetime
+from jose import jwt, JWTError
+from pydantic import BaseModel, EmailStr
+import logging
 
 from app.core.database import get_db
 from app.core.security import (
@@ -17,6 +20,17 @@ from app.core.config import settings
 from app.models.user import User
 from app.models.schemas import UserCreate, UserLogin, UserResponse, Token
 from app.services.google_oauth import oauth
+
+
+# Pydantic models for password reset
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -213,10 +227,6 @@ async def google_callback(request: Request, response: Response, db: Session = De
 
         refresh_token = token.get("refresh_token")
 
-        # Debug logging
-        print(f"[DEBUG] Token keys received from Google: {list(token.keys())}")
-        print(f"[DEBUG] Has refresh_token: {refresh_token is not None}")
-
         # Get user info from Google
         user_info = token.get('userinfo')
         if not user_info:
@@ -225,16 +235,11 @@ async def google_callback(request: Request, response: Response, db: Session = De
                 detail="Failed to get user info from Google"
             )
 
-        # Debug: print what we got from Google
-        print(f"[DEBUG] User info from Google: {user_info}")
-
         # Google's userinfo endpoint returns 'id', not 'sub'
         google_id = user_info.get('sub') or user_info.get('id')
         email = user_info.get('email')
         full_name = user_info.get('name')
         profile_picture = user_info.get('picture')
-
-        print(f"[DEBUG] Extracted - google_id: {google_id}, email: {email}, full_name: {full_name}")
 
         if not email or not google_id:
             raise HTTPException(
@@ -298,10 +303,100 @@ async def google_callback(request: Request, response: Response, db: Session = De
         return RedirectResponse(url=redirect_url)
 
     except Exception as e:
-        import traceback
-        print(f"Google OAuth error: {e}")
-        print(f"Error type: {type(e).__name__}")
-        print(f"Full traceback:")
-        traceback.print_exc()
+        # Log error for debugging (in production, use proper logging)
+        logging.error(f"Google OAuth error: {type(e).__name__}: {e}")
         # Redirect to login page with error
         return RedirectResponse(url=f"{settings.FRONTEND_URL}/login?error=oauth_failed")
+
+
+def create_password_reset_token(user_id: int) -> str:
+    """Create a JWT token for password reset"""
+    expire = datetime.utcnow() + timedelta(hours=1)  # Token valid for 1 hour
+    to_encode = {
+        "sub": str(user_id),
+        "type": "password_reset",
+        "exp": expire
+    }
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def verify_password_reset_token(token: str) -> int | None:
+    """Verify password reset token and return user ID"""
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        if payload.get("type") != "password_reset":
+            return None
+        user_id = payload.get("sub")
+        return int(user_id) if user_id else None
+    except JWTError:
+        return None
+
+
+@router.post("/forgot-password")
+def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    """
+    Request password reset
+
+    Sends a password reset link to the user's email.
+    For security, always returns success even if email doesn't exist.
+    """
+    user = db.query(User).filter(User.email == request.email).first()
+
+    if user:
+        # Check if user registered with OAuth only (no password)
+        if user.google_id and not user.hashed_password:
+            # Still return success for security, but log it
+            logging.info(f"Password reset requested for OAuth-only user: {request.email}")
+        else:
+            # Generate reset token
+            reset_token = create_password_reset_token(user.id)
+            reset_url = f"{settings.FRONTEND_URL}/reset-password?token={reset_token}"
+
+            # In production, you would send an email here
+            # For now, we'll log the reset URL (for development/testing)
+            logging.info(f"Password reset URL for {request.email}: {reset_url}")
+
+            # TODO: Implement email sending
+            # send_password_reset_email(user.email, reset_url)
+
+    # Always return success for security (don't reveal if email exists)
+    return {"message": "If an account exists with this email, you will receive a password reset link."}
+
+
+@router.post("/reset-password")
+def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+    """
+    Reset password using token
+
+    Validates the reset token and updates the user's password.
+    """
+    # Validate password length
+    if len(request.new_password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 8 characters long"
+        )
+
+    # Verify token
+    user_id = verify_password_reset_token(request.token)
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset token"
+        )
+
+    # Get user
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User not found"
+        )
+
+    # Update password
+    user.hashed_password = get_password_hash(request.new_password)
+    db.commit()
+
+    logging.info(f"Password reset successful for user: {user.email}")
+
+    return {"message": "Password has been reset successfully"}

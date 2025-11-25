@@ -22,13 +22,14 @@ app = FastAPI(
 )
 
 # Add session middleware (required for OAuth)
+# In development (DEBUG=True), allow non-HTTPS for localhost testing
 app.add_middleware(
     SessionMiddleware,
     secret_key=settings.SECRET_KEY,
     session_cookie="session",
     max_age=14 * 24 * 60 * 60,  # 14 days
-    same_site="none",  # Required for OAuth redirect flow to work
-    https_only=True  # Always use secure cookies
+    same_site="lax" if settings.DEBUG else "none",  # lax for dev, none for prod
+    https_only=not settings.DEBUG  # False for local dev, True for production
 )
 
 # Configure CORS

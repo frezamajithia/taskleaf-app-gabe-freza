@@ -8,6 +8,7 @@ import { api } from '@/lib/api';
 import { useAuthStore } from '@/lib/store';
 import { useThemeStore } from '@/lib/themeStore';
 import { AppShell } from '@/components/layout/AppShell';
+import { useToast } from '@/components/ui/Toast';
 
 interface Task {
   id: number;
@@ -33,6 +34,7 @@ interface Task {
 
 export default function TasksPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const loadUser = useAuthStore((state) => state.loadUser);
@@ -82,10 +84,15 @@ export default function TasksPage() {
 
   const toggleComplete = async (taskId: number, completed: boolean) => {
     try {
+      const task = tasks.find(t => t.id === taskId);
       await api.put(`/tasks/${taskId}`, { completed: !completed });
+      if (!completed) {
+        showToast(`Task "${task?.title}" completed!`, 'success');
+      }
       fetchTasks();
     } catch (error) {
       console.error('Failed to update task:', error);
+      showToast('Failed to update task', 'error');
     }
   };
 
@@ -103,12 +110,14 @@ export default function TasksPage() {
     if (!taskToDelete) return;
 
     try {
+      const task = tasks.find(t => t.id === taskToDelete);
       await api.delete(`/tasks/${taskToDelete}`);
+      showToast(`Task "${task?.title}" deleted`, 'success');
       closeDeleteModal();
       fetchTasks();
     } catch (error) {
       console.error('Failed to delete task:', error);
-      alert('Failed to delete task');
+      showToast('Failed to delete task', 'error');
     }
   };
 

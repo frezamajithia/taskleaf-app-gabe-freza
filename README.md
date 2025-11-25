@@ -13,20 +13,26 @@ TaskLeaf is a comprehensive task and calendar management solution, much like som
 - **User Authentication:** Secure registration and login with JWT tokens, plus Google OAuth 2.0 integration
 - **Task Management:** Full CRUD operations with priority levels, categories, and due dates
 - **Calendar Integration:**
-  - Visual calendar view for events and tasks
-  - Google Calendar integration for event synchronization
+  - Visual calendar with month, week, and day views
+  - Google Calendar two-way synchronization
   - Create, edit, and delete calendar events
+  - Recurring events support (daily, weekly, monthly, yearly) with Google Calendar sync
+  - Event hover tooltips for quick preview
+- **Notification System:**
+  - Toast notifications for user actions (task/event create, update, delete)
+  - Persistent notification bell with notification history
+  - Notifications stored in localStorage for persistence across sessions
 - **Real-time Weather:** Location-based weather data via OpenWeatherMap API
 - **Analytics Dashboard:** Task completion statistics and priority breakdowns
 - **Theme Support:** Light and dark mode with smooth transitions
 - **Responsive Design:** Mobile-first design that works on all device sizes
 
-### Mock Features and Improvements:
+### Future Improvements
 
-- **Mock Notifications Panel:** Shows how the notifications would show if integrated with the backend.
-- **Mock Settings Tab:** The current Settings tab is interactive and lets the use switch themes. A more comprehensive one would need implementation.
-- **Mock Analytics Tab:** The current Analytics is great for demonstration, though ideally it would fetch the sample data in real time as a user uses the application more.
-- **Additional Themes/UI Polishes:** The overall UI could be improved to have more themes, and/or have a more premium feel.
+- **Settings Tab:** The current Settings tab is interactive and allows theme switching. A more comprehensive settings panel with user preferences could be implemented.
+- **Analytics Enhancement:** The current Analytics dashboard provides demonstration data. Real-time data aggregation as users interact with the application would be beneficial.
+- **Additional Themes:** The UI could be extended to support additional color themes beyond light and dark mode.
+- **Email Notifications:** Backend integration for email-based notifications and reminders.
 
 ## Technology Stack
 
@@ -56,46 +62,119 @@ TaskLeaf is a comprehensive task and calendar management solution, much like som
 - **Vercel** (frontend deployment)
 - **Railway** (backend deployment)
 
-## Quick Start
+## Quick Start (Local Development with Docker)
 
 ### Prerequisites
-- Docker and Docker Compose installed
-- API keys for OpenWeatherMap and Google OAuth (see below)
+- **Docker** and **Docker Compose** installed
+- API keys for OpenWeatherMap and Google OAuth (see [API Keys](#api-keys) section below)
 
-### Running with Docker (Recommended)
+### Step 1: Clone the Repository
 
-1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd taskleaf-app
+cd taskleaf-app-gabe-freza
 ```
 
-2. Set up environment variables:
+### Step 2: Set Up Backend Environment Variables
+
 ```bash
-# Backend environment variables
 cp backend/.env.example backend/.env
 ```
 
-3. Edit `backend/.env` and add your API keys (see API Keys section below)
+**Edit `backend/.env`** and add your API keys:
 
-4. Start all services:
+```env
+# Application
+APP_NAME=TaskLeaf API
+APP_VERSION=1.0.0
+DEBUG=True
+
+# Database (already configured for Docker)
+DATABASE_URL=postgresql://taskleaf:taskleaf123@db:5432/taskleaf_db
+
+# JWT Secret (generate a random string for security)
+SECRET_KEY=your-secret-key-at-least-32-characters-long
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=10080
+
+# CORS
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8000
+
+# Frontend URL (for OAuth redirects)
+FRONTEND_URL=http://localhost:3000
+
+# OpenWeatherMap API (get from https://openweathermap.org/api)
+OPENWEATHER_API_KEY=your-openweather-api-key
+OPENWEATHER_BASE_URL=https://api.openweathermap.org/data/2.5
+
+# Google OAuth (get from Google Cloud Console)
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_REDIRECT_URI=http://localhost:8000/api/auth/google/callback
+```
+
+### Step 3: Start All Services with Docker
+
 ```bash
 docker-compose up --build
 ```
 
-The application will be available at:
-- **Frontend:** http://localhost:3000
-- **Backend API:** http://localhost:8000
-- **API Documentation:** http://localhost:8000/api/docs
+This command will:
+- Build the frontend (Next.js) container
+- Build the backend (FastAPI) container
+- Start the PostgreSQL database container
+- Set up networking between all services
 
-### Running Tests
+### Step 4: Access the Application
+
+Once all containers are running, open your browser:
+
+| Service | URL |
+|---------|-----|
+| **Frontend** | http://localhost:3000 |
+| **Backend API** | http://localhost:8000 |
+| **API Documentation (Swagger)** | http://localhost:8000/api/docs |
+| **API Documentation (ReDoc)** | http://localhost:8000/api/redoc |
+
+### Step 5: Verify Everything Works
+
+1. Open http://localhost:3000 in your browser
+2. Register a new account or sign in with Google
+3. Create a task to verify the backend connection
+4. Check the API docs at http://localhost:8000/api/docs
+
+### Stopping the Application
 
 ```bash
-# Backend tests (all should pass)
+# Stop all containers
+docker-compose down
+
+# Stop and remove volumes (resets database)
+docker-compose down -v
+```
+
+### Rebuilding After Code Changes
+
+```bash
+# Rebuild and restart
+docker-compose up --build
+```
+
+> **Note:** If you encounter issues, see the [Troubleshooting](#troubleshooting) section below.
+
+---
+
+## Running Tests
+
+```bash
+# Run backend tests (with Docker running)
 docker-compose exec backend pytest app/tests/test_auth.py app/tests/test_tasks.py -v
 
+# Run all backend tests
+docker-compose exec backend pytest app/tests/ -v
+
 # Frontend build test
-cd frontend && npm run build
+docker-compose exec frontend npm run build
 ```
 
 ## API Keys
@@ -205,6 +284,48 @@ https://pagespeed.web.dev/analysis/https-taskleaf-app-gabe-freza-vercel-app/z9k3
 - **PostgreSQL runs on port 5432** with persistent volume
 - **Dark mode** implemented throughout the application
 - **Responsive design** tested on desktop, tablet, and mobile
+
+## Troubleshooting
+
+### Common Issues
+
+**Docker containers won't start**
+- Ensure Docker Desktop is running
+- Try `docker-compose down -v` then `docker-compose up --build` to start fresh
+- Check if ports 3000, 8000, or 5432 are already in use: `lsof -i :3000`
+
+**"CORS error" or "Network Error" in frontend**
+- Ensure `ALLOWED_ORIGINS` in `backend/.env` includes `http://localhost:3000`
+- Verify backend container is running: `docker-compose ps`
+- Check backend logs: `docker-compose logs backend`
+
+**"Connection refused" to database**
+- Ensure `DATABASE_URL` uses `db` as the host (not `localhost`): `@db:5432`
+- Wait for PostgreSQL container to fully initialize (check logs: `docker-compose logs db`)
+- Try restarting: `docker-compose restart`
+
+**Google OAuth not working locally**
+- Ensure `DEBUG=True` in `backend/.env` for local development
+- Verify `GOOGLE_REDIRECT_URI=http://localhost:8000/api/auth/google/callback`
+- In Google Cloud Console, add to **Authorized JavaScript origins**:
+  - `http://localhost:8000`
+  - `http://localhost:3000`
+- In Google Cloud Console, add to **Authorized redirect URIs**:
+  - `http://localhost:8000/api/auth/google/callback`
+
+**Changes not reflecting after code update**
+- Rebuild containers: `docker-compose up --build`
+- For frontend changes, the container has hot-reload enabled
+- For backend changes, the container has auto-reload enabled
+
+**Weather data not showing**
+- Verify `OPENWEATHER_API_KEY` is set in `backend/.env`
+- Free tier API keys may take a few minutes to activate after creation
+- Check backend logs for API errors: `docker-compose logs backend`
+
+**Database data persists after code changes**
+- Data is stored in a Docker volume
+- To reset database: `docker-compose down -v` then `docker-compose up --build`
 
 ## Additional Documentation
 

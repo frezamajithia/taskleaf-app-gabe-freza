@@ -1,12 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api';
+import { api, calendarAPI } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
 
 export default function NewTaskPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [googleConnected, setGoogleConnected] = useState(false);
+
+  // Check if Google Calendar is connected
+  useEffect(() => {
+    const checkGoogleStatus = async () => {
+      try {
+        const response = await calendarAPI.getStatus();
+        setGoogleConnected(response.data.connected);
+      } catch (error) {
+        setGoogleConnected(false);
+      }
+    };
+    checkGoogleStatus();
+  }, []);
   const priorityOptions = [
     {
       key: 'low',
@@ -37,6 +53,7 @@ export default function NewTaskPage() {
     time: '',
     priority: 'medium',
     location: '',
+    sync_with_google_calendar: false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,9 +62,10 @@ export default function NewTaskPage() {
 
     try {
       await api.post('/tasks/', formData);
+      showToast(`Task "${formData.title}" created successfully!`, 'success');
       router.push('/tasks');
     } catch (error: any) {
-      alert(error.response?.data?.detail || 'Failed to create task');
+      showToast(error.response?.data?.detail || 'Failed to create task', 'error');
     } finally {
       setLoading(false);
     }
@@ -172,6 +190,43 @@ export default function NewTaskPage() {
               rows={2}
               placeholder="Add notes or description"
             ></textarea>
+          </div>
+
+          {/* Google Calendar Sync */}
+          <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200/50 dark:border-blue-800/30">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-white dark:bg-teal-950/50 flex items-center justify-center shadow-sm">
+                <i className="fa-brands fa-google text-lg text-blue-500"></i>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-patina-700 dark:text-teal-200">
+                  Sync to Google Calendar
+                </p>
+                <p className="text-xs text-patina-500 dark:text-teal-400">
+                  {googleConnected
+                    ? 'Add this task to your Google Calendar'
+                    : 'Sign in with Google to enable sync'}
+                </p>
+              </div>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.sync_with_google_calendar}
+                onChange={(e) => setFormData({ ...formData, sync_with_google_calendar: e.target.checked })}
+                disabled={!googleConnected}
+                className="sr-only peer"
+              />
+              <div className={`w-11 h-6 rounded-full peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 transition-colors ${
+                googleConnected
+                  ? 'bg-patina-200 dark:bg-teal-800 peer-checked:bg-blue-500 dark:peer-checked:bg-blue-600'
+                  : 'bg-patina-100 dark:bg-teal-900 cursor-not-allowed'
+              }`}>
+                <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                  formData.sync_with_google_calendar ? 'translate-x-5' : 'translate-x-0'
+                }`}></div>
+              </div>
+            </label>
           </div>
 
           {/* Action Buttons */}

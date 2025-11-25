@@ -30,7 +30,11 @@ class Task(Base):
     
     # Weather data (stored as JSON)
     weather_data = Column(JSON, nullable=True)
-    
+
+    # Google Calendar sync
+    google_calendar_event_id = Column(String, nullable=True, index=True)
+    sync_with_google_calendar = Column(Boolean, default=False)
+
     # Category relationship
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
     category = relationship("Category", back_populates="tasks")
