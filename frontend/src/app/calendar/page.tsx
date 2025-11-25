@@ -113,12 +113,14 @@ export default function CalendarPage() {
   const fetchGoogleCalendarEvents = async () => {
     try {
       setIsSyncingGoogle(true);
-      const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-      const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+      // Fetch a wider range (6 months back, 12 months forward) to capture recurring events
+      const today = new Date();
+      const timeMin = new Date(today.getFullYear(), today.getMonth() - 6, 1);
+      const timeMax = new Date(today.getFullYear(), today.getMonth() + 12, 0);
 
       const response = await calendarAPI.getEvents({
-        timeMin: firstDay.toISOString(),
-        timeMax: lastDay.toISOString(),
+        timeMin: timeMin.toISOString(),
+        timeMax: timeMax.toISOString(),
       });
 
       const formattedEvents: CalendarEvent[] = response.data.items.map((event: any) => {
@@ -788,14 +790,14 @@ export default function CalendarPage() {
               </button>
 
               {/* View Switcher */}
-              <div className="inline-flex rounded-lg bg-white/60 dark:bg-teal-900/40 p-0.5 border border-patina-200/50 dark:border-teal-700/40">
+              <div className="inline-flex rounded-full bg-white/60 dark:bg-teal-900/40 p-1 border border-patina-200/50 dark:border-teal-700/40">
                 {['day', 'week', 'month'].map((view) => (
                   <button
                     key={view}
                     onClick={() => setSelectedView(view as 'day' | 'week' | 'month')}
-                    className={`px-2.5 py-1 text-xs font-medium rounded transition-all ${
+                    className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
                       selectedView === view
-                        ? 'bg-gradient-to-br from-patina-500 to-teal-600 dark:from-teal-600 dark:to-teal-700 text-white shadow-sm'
+                        ? 'bg-gradient-to-br from-patina-500 to-teal-600 dark:from-teal-600 dark:to-teal-700 text-white shadow-md'
                         : 'text-patina-700 dark:text-teal-200 hover:bg-white/40 dark:hover:bg-teal-800/40'
                     }`}
                   >
@@ -859,12 +861,12 @@ export default function CalendarPage() {
                   >
                     {day ? (
                       <div className="calendar-day-content flex flex-col h-full">
-                        <div className="flex justify-between items-start mb-0.5 flex-shrink-0">
+                        <div className="flex justify-between items-start mb-1 flex-shrink-0 px-1 pt-1">
                           <span
-                            className={`calendar-number font-bold leading-none -ml-0.5 mt-0.5 ${
+                            className={`calendar-number font-bold leading-none ${
                               isTodayCell
-                                ? 'today-indicator bg-blue-600 dark:bg-blue-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[9px]'
-                                : 'text-patina-700 dark:text-teal-200 text-[10px]'
+                                ? 'today-indicator bg-blue-600 dark:bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px]'
+                                : 'text-patina-700 dark:text-teal-200 text-[11px]'
                             }`}
                           >
                             {day}
@@ -1598,10 +1600,14 @@ export default function CalendarPage() {
                 </button>
                 <button
                   onClick={confirmDeleteEvent}
-                  className="flex-1 px-5 py-3 bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 dark:from-red-600 dark:to-red-700 dark:hover:from-red-500 dark:hover:to-red-600 text-white rounded-xl transition-all duration-200 font-medium shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:scale-[1.02] active:scale-95"
+                  disabled={isSavingEvent}
+                  className="flex-1 px-5 py-3 bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 dark:from-red-600 dark:to-red-700 dark:hover:from-red-500 dark:hover:to-red-600 text-white rounded-xl transition-all duration-200 font-medium shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
-                  <i className="fa-solid fa-trash mr-2"></i>
-                  Delete
+                  {isSavingEvent ? (
+                    <><i className="fa-solid fa-spinner fa-spin mr-2"></i>Deleting...</>
+                  ) : (
+                    <><i className="fa-solid fa-trash mr-2"></i>Delete</>
+                  )}
                 </button>
               </div>
             </div>

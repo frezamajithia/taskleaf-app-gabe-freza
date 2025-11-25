@@ -11,13 +11,20 @@ TaskLeaf is a comprehensive task and calendar management solution, much like som
 ### Key Features
 
 - **User Authentication:** Secure registration and login with JWT tokens, plus Google OAuth 2.0 integration
+  - Password reset functionality for email/password accounts (users who signed up with email and password can reset their password via a secure link; users who signed up with Google should use "Continue with Google" to log in, as their authentication is managed by Google)
+  - Demo mode displays the reset link directly on screen for testing purposes, since no email service is configured
 - **Task Management:** Full CRUD operations with priority levels, categories, and due dates
+  - Bulk selection mode for managing multiple tasks at once
+  - Batch operations: mark complete, delete selected tasks
 - **Calendar Integration:**
   - Visual calendar with month, week, and day views
+  - Pill-style view switcher for seamless navigation between calendar views
   - Google Calendar two-way synchronization
   - Create, edit, and delete calendar events
   - Recurring events support (daily, weekly, monthly, yearly) with Google Calendar sync
+  - Recurring events display up to 6 months ahead and 6 months back from the current date
   - Event hover tooltips for quick preview
+  - Note: Google Calendar events are read-only within TaskLeaf; to edit or delete them, use Google Calendar directly
 - **Notification System:**
   - Toast notifications for user actions (task/event create, update, delete)
   - Persistent notification bell with notification history
@@ -25,6 +32,7 @@ TaskLeaf is a comprehensive task and calendar management solution, much like som
 - **Real-time Weather:** Location-based weather data via OpenWeatherMap API
 - **Analytics Dashboard:** Task completion statistics and priority breakdowns
 - **Theme Support:** Light and dark mode with smooth transitions
+- **UI Polish:** Micro-interactions, hover effects, loading states, and animations throughout the interface
 - **Responsive Design:** Mobile-first design that works on all device sizes
 
 ### Future Improvements
@@ -32,7 +40,7 @@ TaskLeaf is a comprehensive task and calendar management solution, much like som
 - **Settings Tab:** The current Settings tab is interactive and allows theme switching. A more comprehensive settings panel with user preferences could be implemented.
 - **Analytics Enhancement:** The current Analytics dashboard provides demonstration data. Real-time data aggregation as users interact with the application would be beneficial.
 - **Additional Themes:** The UI could be extended to support additional color themes beyond light and dark mode.
-- **Email Notifications:** Backend integration for email-based notifications and reminders.
+- **Email Service Integration:** Backend integration for email delivery (password reset emails, notifications, and reminders). Currently, password reset works but displays the reset link on screen instead of sending an email, which is suitable for demonstration purposes.
 
 ## Technology Stack
 
@@ -225,9 +233,12 @@ TaskLeaf implements a **three-tier architecture**:
 
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
+- `POST /api/auth/forgot-password` - Request password reset
+- `POST /api/auth/reset-password` - Reset password with token
 - `GET /api/auth/google/login` - Google OAuth login
 - `GET /api/tasks/` - List all tasks
 - `POST /api/tasks/` - Create new task
+- `DELETE /api/tasks/bulk` - Bulk delete tasks
 - `GET /api/calendar/events` - List calendar events
 - `POST /api/calendar/events` - Create calendar event
 
@@ -284,6 +295,8 @@ https://pagespeed.web.dev/analysis/https-taskleaf-app-gabe-freza-vercel-app/z9k3
 - **PostgreSQL runs on port 5432** with persistent volume
 - **Dark mode** implemented throughout the application
 - **Responsive design** tested on desktop, tablet, and mobile
+- **UI polish** includes smooth animations, hover effects, and transition states throughout the interface
+- **Password reset** is available only for accounts created with email/password registration. Google OAuth users do not have a password stored in the system (their authentication is handled by Google), so they are prompted to use "Continue with Google" instead. In demo mode, the reset link is displayed on screen since no email service is configured
 
 ## Troubleshooting
 

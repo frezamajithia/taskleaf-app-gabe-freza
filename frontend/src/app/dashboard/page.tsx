@@ -125,8 +125,16 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 dark:border-teal-400"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-patina-50 to-white dark:from-gray-950 dark:to-gray-900">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-14 w-14 border-4 border-patina-200 dark:border-teal-800 border-t-patina-500 dark:border-t-teal-400"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <i className="fa-solid fa-leaf text-patina-500 dark:text-teal-400 text-lg animate-pulse"></i>
+            </div>
+          </div>
+          <p className="text-patina-600 dark:text-teal-400 font-medium animate-pulse">Loading your dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -149,20 +157,20 @@ export default function DashboardPage() {
           <div className="lg:col-span-2 space-y-8">
 
             {/* Quick Actions */}
-            <div className="glass-card rounded-2xl p-6">
+            <div className="glass-card rounded-2xl p-6 hover:shadow-xl transition-shadow duration-300">
               <h3 className="text-lg font-semibold text-patina-700 dark:text-teal-200 mb-6">Quick Add</h3>
               <div className="border-t border-patina-200/30 dark:border-teal-700/30 pt-6">
                 <div className="flex flex-wrap gap-4">
                   <button
                     onClick={() => router.push('/tasks/new')}
-                    className="btn-primary flex items-center px-6 py-3 rounded-xl"
+                    className="btn-primary flex items-center px-6 py-3 rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-patina-500/30 dark:hover:shadow-teal-500/30 transition-all duration-200"
                   >
                     <i className="fa-solid fa-plus mr-3"></i>
                     Add Task
                   </button>
                   <button
                     onClick={() => router.push('/calendar')}
-                    className="btn-secondary flex items-center px-6 py-3 rounded-xl"
+                    className="btn-secondary flex items-center px-6 py-3 rounded-xl hover:scale-105 transition-all duration-200"
                   >
                     <i className="fa-solid fa-calendar mr-3"></i>
                     Add Event
@@ -176,17 +184,21 @@ export default function DashboardPage() {
               <h3 className="text-lg font-semibold text-patina-700 dark:text-teal-200 mb-6">Today&apos;s Schedule</h3>
               <div className="border-t border-patina-200/30 dark:border-teal-700/30 pt-6">
                 {todaysTasks.length === 0 ? (
-                  <p className="text-patina-600 dark:text-teal-400 opacity-60 text-center py-6">No tasks scheduled for today</p>
+                  <div className="text-center py-8">
+                    <i className="fa-regular fa-calendar-check text-3xl text-patina-300 dark:text-teal-600 mb-3"></i>
+                    <p className="text-patina-600 dark:text-teal-400 opacity-70">No tasks scheduled for today</p>
+                  </div>
                 ) : (
                   <div className="space-y-4">
                     {todaysTasks.slice(0, 3).map((task, index) => (
                       <div
                         key={task.id}
-                        className="flex items-center py-4 px-5 rounded-xl border border-patina-200/30 dark:border-teal-700/30 hover:border-patina-300/50 dark:hover:border-teal-600/50 transition-all duration-200"
+                        className="group flex items-center py-4 px-5 rounded-xl border border-patina-200/30 dark:border-teal-700/30 hover:border-patina-300/50 dark:hover:border-teal-600/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 animate-fade-in"
+                        style={{ animationDelay: `${index * 100}ms` }}
                       >
-                        <div className={`w-3 h-3 rounded-full mr-4 ${
-                          task.priority === 'high' ? 'bg-red-400' :
-                          task.priority === 'medium' ? 'bg-blue-400' : 'bg-green-400'
+                        <div className={`w-3 h-3 rounded-full mr-4 transition-transform group-hover:scale-125 ${
+                          task.priority === 'high' ? 'bg-red-400 shadow-sm shadow-red-400/50' :
+                          task.priority === 'medium' ? 'bg-blue-400 shadow-sm shadow-blue-400/50' : 'bg-green-400 shadow-sm shadow-green-400/50'
                         }`}></div>
                         <div className="flex-1">
                           <h4 className="font-medium text-patina-700 dark:text-teal-200">{task.title}</h4>
@@ -231,21 +243,29 @@ export default function DashboardPage() {
 
               <div className="space-y-3">
                 {todaysTasks.length === 0 ? (
-                  <p className="text-patina-600 dark:text-teal-400 opacity-60 text-center py-8">No tasks for today</p>
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-patina-100 to-teal-100 dark:from-teal-900/50 dark:to-teal-800/30 flex items-center justify-center">
+                      <i className="fa-solid fa-check-circle text-2xl text-patina-400 dark:text-teal-500"></i>
+                    </div>
+                    <p className="text-patina-600 dark:text-teal-400 font-medium">No tasks for today</p>
+                    <p className="text-sm text-patina-500 dark:text-teal-500 mt-1">Enjoy your free time!</p>
+                  </div>
                 ) : (
-                  todaysTasks.map((task) => (
+                  todaysTasks.map((task, index) => (
                     <div
                       key={task.id}
-                      className="flex items-center space-x-4 p-4 rounded-xl border border-patina-200/30 dark:border-teal-700/30 hover:border-patina-300/50 dark:hover:border-teal-600/50 transition-all duration-200"
+                      className="group flex items-center space-x-4 p-4 rounded-xl border border-patina-200/30 dark:border-teal-700/30 hover:border-patina-300/50 dark:hover:border-teal-600/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 animate-fade-in"
+                      style={{ animationDelay: `${index * 75}ms` }}
                     >
                       <input
                         type="checkbox"
                         checked={task.completed}
                         onChange={() => toggleTaskComplete(task.id, task.completed)}
+                        className="custom-checkbox flex-shrink-0"
                       />
-                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                        task.priority === 'high' ? 'bg-red-500' :
-                        task.priority === 'medium' ? 'bg-amber-500' : 'bg-green-500'
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 transition-transform group-hover:scale-150 ${
+                        task.priority === 'high' ? 'bg-red-500 shadow-sm shadow-red-500/50' :
+                        task.priority === 'medium' ? 'bg-amber-500 shadow-sm shadow-amber-500/50' : 'bg-green-500 shadow-sm shadow-green-500/50'
                       }`}></div>
                       <span className={`flex-1 ${task.completed ? 'text-patina-500 dark:text-teal-500 line-through opacity-70' : 'text-patina-700 dark:text-teal-200'}`}>
                         {task.title}
@@ -264,7 +284,7 @@ export default function DashboardPage() {
           <div className="space-y-8">
 
             {/* Weather Card */}
-            <div className="glass-card rounded-2xl p-6">
+            <div className="glass-card rounded-2xl p-6 hover:shadow-xl transition-shadow duration-300">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-patina-700 dark:text-teal-200">Weather</h3>
                 <i className="fa-solid fa-cloud-sun text-patina-400 dark:text-teal-400 text-2xl"></i>
@@ -359,7 +379,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Weekly Overview */}
-            <div className="glass-card rounded-2xl p-6">
+            <div className="glass-card rounded-2xl p-6 hover:shadow-xl transition-shadow duration-300">
               <h3 className="text-lg font-semibold text-patina-700 dark:text-teal-200 mb-4">This Week</h3>
               {stats && (
                 <div className="space-y-4">
@@ -369,23 +389,29 @@ export default function DashboardPage() {
                       {stats.completed_tasks}/{stats.total_tasks}
                     </span>
                   </div>
-                  <div className="w-full h-3 bg-patina-100/50 dark:bg-black/40 rounded-full border border-patina-200/30 dark:border-gray-600">
+                  <div className="w-full h-3 bg-patina-200 dark:bg-slate-900 rounded-full overflow-hidden">
                     <div
-                      className="h-3 bg-gradient-to-r from-teal-400 to-teal-500 dark:from-cyan-300 dark:to-emerald-300 rounded-full animate-whoosh shadow-lg dark:shadow-cyan-300/80"
-                      style={{ width: `${stats.completion_rate || 0}%` }}
+                      className="h-3 rounded-full transition-all duration-500"
+                      style={{
+                        width: `${stats.completion_rate || 0}%`,
+                        background: 'linear-gradient(to right, #2dd4bf, #10b981)'
+                      }}
                     ></div>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-patina-600 dark:text-teal-400">High Priority</span>
+                    <span className="text-sm text-patina-600 dark:text-teal-400">High Priority Completed</span>
                     <span className="text-sm font-medium text-patina-700 dark:text-teal-200">
-                      {stats.tasks_by_priority?.high || 0}
+                      {stats.completed_by_priority?.high || 0}/{stats.tasks_by_priority?.high || 0}
                     </span>
                   </div>
-                  <div className="w-full h-2 bg-patina-100/50 dark:bg-black/40 rounded-full border border-patina-200/30 dark:border-gray-600">
+                  <div className="w-full h-3 bg-patina-200 dark:bg-slate-900 rounded-full overflow-hidden">
                     <div
-                      className="h-2 bg-gradient-to-r from-rose-400 to-rose-500 dark:from-rose-300 dark:to-pink-300 rounded-full transition-all duration-500 shadow-md dark:shadow-rose-300/80"
-                      style={{ width: `${stats.total_tasks > 0 && stats.tasks_by_priority?.high ? (stats.tasks_by_priority.high / stats.total_tasks) * 100 : 0}%` }}
+                      className="h-3 rounded-full transition-all duration-500"
+                      style={{
+                        width: `${stats.tasks_by_priority?.high > 0 ? ((stats.completed_by_priority?.high || 0) / stats.tasks_by_priority.high) * 100 : 0}%`,
+                        background: 'linear-gradient(to right, #fb7185, #f472b6)'
+                      }}
                     ></div>
                   </div>
                 </div>
@@ -393,17 +419,24 @@ export default function DashboardPage() {
             </div>
 
             {/* Recent Activity */}
-            <div className="glass-card rounded-2xl p-6">
+            <div className="glass-card rounded-2xl p-6 hover:shadow-xl transition-shadow duration-300">
               <h3 className="text-lg font-semibold text-patina-700 dark:text-teal-200 mb-4">Recent Activity</h3>
               <div className="space-y-4">
                 {tasks.length === 0 ? (
-                  <p className="text-patina-600 dark:text-teal-400 opacity-60 text-sm text-center py-4">No recent activity</p>
+                  <div className="text-center py-6">
+                    <i className="fa-regular fa-clock text-2xl text-patina-300 dark:text-teal-600 mb-2"></i>
+                    <p className="text-patina-600 dark:text-teal-400 opacity-70 text-sm">No recent activity</p>
+                  </div>
                 ) : (
-                  tasks.slice(0, 3).map((task) => (
-                    <div key={task.id} className="flex items-start space-x-3">
-                      <div className={`w-2 h-2 rounded-full mt-2 ${
-                        task.completed ? 'bg-green-400' :
-                        task.priority === 'high' ? 'bg-red-400' : 'bg-blue-400'
+                  tasks.slice(0, 3).map((task, index) => (
+                    <div
+                      key={task.id}
+                      className="group flex items-start space-x-3 p-2 -mx-2 rounded-lg hover:bg-patina-50/50 dark:hover:bg-teal-800/30 transition-all duration-200 animate-fade-in"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <div className={`w-2 h-2 rounded-full mt-2 transition-transform group-hover:scale-150 ${
+                        task.completed ? 'bg-green-400 shadow-sm shadow-green-400/50' :
+                        task.priority === 'high' ? 'bg-red-400 shadow-sm shadow-red-400/50' : 'bg-blue-400 shadow-sm shadow-blue-400/50'
                       }`}></div>
                       <div>
                         <p className="text-sm text-patina-700 dark:text-teal-200">
@@ -425,7 +458,7 @@ export default function DashboardPage() {
       {/* Floating Add Button */}
       <button
         onClick={() => router.push('/tasks/new')}
-        className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-br from-patina-500 to-teal-600 dark:from-teal-600 dark:to-teal-700 text-white rounded-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-2xl shadow-lg shadow-patina-500/40 dark:shadow-teal-600/40 z-50"
+        className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-br from-patina-500 to-teal-600 dark:from-teal-600 dark:to-teal-700 text-white rounded-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:rotate-90 hover:shadow-2xl shadow-lg shadow-patina-500/40 dark:shadow-teal-600/40 z-50"
         title="Add Task"
       >
         <i className="fa-solid fa-plus text-2xl"></i>

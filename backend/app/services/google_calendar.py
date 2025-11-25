@@ -93,23 +93,36 @@ async def fetch_calendar_events(
     return data.get("items", [])
 
 
-def _build_recurrence_rule(recurrence: Optional[str]) -> Optional[List[str]]:
+def _build_recurrence_rule(recurrence: Optional[str], date: Optional[datetime] = None) -> Optional[List[str]]:
     """
     Build a Google Calendar RRULE from recurrence type.
+    Includes BYDAY/BYMONTHDAY for more predictable recurrence.
     """
     if not recurrence or recurrence == 'none':
         return None
 
-    rrule_map = {
-        'daily': 'RRULE:FREQ=DAILY',
-        'weekly': 'RRULE:FREQ=WEEKLY',
-        'monthly': 'RRULE:FREQ=MONTHLY',
-        'yearly': 'RRULE:FREQ=YEARLY',
-    }
+    recurrence_lower = recurrence.lower()
 
-    rrule = rrule_map.get(recurrence.lower())
-    if rrule:
-        return [rrule]
+    if recurrence_lower == 'daily':
+        return ['RRULE:FREQ=DAILY']
+
+    elif recurrence_lower == 'weekly':
+        # Include BYDAY to ensure it repeats on the same day of the week
+        if date and hasattr(date, 'strftime'):
+            day_of_week = date.strftime('%a').upper()[:2]  # MO, TU, WE, etc.
+            return [f'RRULE:FREQ=WEEKLY;BYDAY={day_of_week}']
+        return ['RRULE:FREQ=WEEKLY']
+
+    elif recurrence_lower == 'monthly':
+        # Include BYMONTHDAY to ensure it repeats on the same day of the month
+        if date and hasattr(date, 'day'):
+            day_of_month = date.day
+            return [f'RRULE:FREQ=MONTHLY;BYMONTHDAY={day_of_month}']
+        return ['RRULE:FREQ=MONTHLY']
+
+    elif recurrence_lower == 'yearly':
+        return ['RRULE:FREQ=YEARLY']
+
     return None
 
 
@@ -134,8 +147,8 @@ def _build_event_body(
     if location:
         event["location"] = location
 
-    # Add recurrence rule if specified
-    recurrence_rule = _build_recurrence_rule(recurrence)
+    # Add recurrence rule if specified (pass date for BYDAY/BYMONTHDAY calculation)
+    recurrence_rule = _build_recurrence_rule(recurrence, date)
     if recurrence_rule:
         event["recurrence"] = recurrence_rule
 

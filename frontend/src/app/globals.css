@@ -488,16 +488,44 @@
     box-shadow: 0 4px 18px rgba(20, 184, 166, 0.5);
   }
 
-  /* Checkbox styling for dark mode */
-  input[type="checkbox"] {
-    accent-color: #49837C; /* patina-500 */
-    @apply cursor-pointer w-5 h-5 rounded;
-    filter: brightness(1) saturate(1.2);
+  /* Custom checkbox styling */
+  .custom-checkbox {
+    @apply appearance-none w-5 h-5 rounded border-2 cursor-pointer transition-all duration-200;
+    @apply border-patina-400 bg-white;
   }
 
-  .dark input[type="checkbox"] {
-    accent-color: #2dd4bf; /* teal-400 - brighter for visibility */
-    filter: brightness(1.4) saturate(1.5);
+  .custom-checkbox:checked {
+    @apply bg-patina-500 border-patina-500;
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .dark .custom-checkbox {
+    @apply border-teal-500 bg-teal-950;
+  }
+
+  .dark .custom-checkbox:checked {
+    @apply bg-teal-500 border-teal-500;
+  }
+
+  .custom-checkbox:hover {
+    @apply border-patina-500;
+  }
+
+  .dark .custom-checkbox:hover {
+    @apply border-teal-400;
+  }
+
+  /* Legacy checkbox styling (non-custom) */
+  input[type="checkbox"]:not(.custom-checkbox) {
+    accent-color: #49837C; /* patina-500 */
+    @apply cursor-pointer;
+  }
+
+  .dark input[type="checkbox"]:not(.custom-checkbox) {
+    accent-color: #2dd4bf; /* teal-400 */
   }
 
   input[type="checkbox"]:checked {
@@ -1304,4 +1332,159 @@ textarea:focus-visible {
 
 .calendar-number:hover {
   @apply scale-110;
+}
+
+/* ========================================
+   ADDITIONAL UI POLISH ANIMATIONS
+   ======================================== */
+
+/* Slide in from top animation (for bulk action bars, etc.) */
+@keyframes slide-in-from-top {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation-duration: 0.3s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.slide-in-from-top-2 {
+  animation-name: slide-in-from-top;
+}
+
+/* Pulse glow effect for progress bars on completion */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(20, 184, 166, 0);
+  }
+  50% {
+    box-shadow: 0 0 12px 4px rgba(20, 184, 166, 0.4);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Bounce subtle for completed tasks */
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 0.3s ease-out;
+}
+
+/* Scale pop animation for button clicks */
+@keyframes scale-pop {
+  0% {
+    transform: scale(0.95);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-scale-pop {
+  animation: scale-pop 0.2s ease-out;
+}
+
+/* Shimmer effect for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(73, 131, 124, 0.1) 0%,
+    rgba(73, 131, 124, 0.2) 20%,
+    rgba(73, 131, 124, 0.1) 40%,
+    rgba(73, 131, 124, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+.dark .shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(20, 184, 166, 0.1) 0%,
+    rgba(20, 184, 166, 0.2) 20%,
+    rgba(20, 184, 166, 0.1) 40%,
+    rgba(20, 184, 166, 0.1) 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* Smooth card entrance for lists */
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-card-enter {
+  animation: card-enter 0.3s ease-out forwards;
+}
+
+/* Success checkmark animation */
+@keyframes checkmark-draw {
+  0% {
+    stroke-dashoffset: 50;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-checkmark {
+  stroke-dasharray: 50;
+  animation: checkmark-draw 0.3s ease-out forwards;
+}
+
+/* Hover lift effect for cards */
+.hover-lift {
+  @apply transition-all duration-200;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  @apply shadow-lg;
+}
+
+/* Active press effect */
+.active-press:active {
+  transform: scale(0.98);
+}
+
+/* Focus visible ring for accessibility */
+.focus-ring-visible:focus-visible {
+  @apply outline-none ring-2 ring-patina-500 dark:ring-teal-400 ring-offset-2;
 }

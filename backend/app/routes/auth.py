@@ -338,25 +338,43 @@ def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db
     Request password reset
 
     Sends a password reset link to the user's email.
-    For security, always returns success even if email doesn't exist.
+    In development mode, returns the reset URL directly for testing.
     """
     user = db.query(User).filter(User.email == request.email).first()
+
+    # Check if we're in development/demo mode (show reset link on screen)
+    is_dev = settings.FRONTEND_URL in [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://taskleaf-app-gabe-freza.vercel.app"
+    ]
 
     if user:
         # Check if user registered with OAuth only (no password)
         if user.google_id and not user.hashed_password:
-            # Still return success for security, but log it
             logging.info(f"Password reset requested for OAuth-only user: {request.email}")
+            if is_dev:
+                return {
+                    "message": "This account uses Google Sign-In and doesn't have a password.",
+                    "dev_mode": True,
+                    "oauth_only": True
+                }
         else:
             # Generate reset token
             reset_token = create_password_reset_token(user.id)
             reset_url = f"{settings.FRONTEND_URL}/reset-password?token={reset_token}"
 
-            # In production, you would send an email here
-            # For now, we'll log the reset URL (for development/testing)
             logging.info(f"Password reset URL for {request.email}: {reset_url}")
 
-            # TODO: Implement email sending
+            # In development mode, return the reset URL directly
+            if is_dev:
+                return {
+                    "message": "Reset link generated (dev mode)",
+                    "dev_mode": True,
+                    "reset_url": reset_url
+                }
+
+            # TODO: In production, send email here
             # send_password_reset_email(user.email, reset_url)
 
     # Always return success for security (don't reveal if email exists)
@@ -393,10 +411,15 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
             detail="User not found"
         )
 
-    # Update password
-    user.hashed_password = get_password_hash(request.new_password)
-    db.commit()
+    # Update password - explicitly mark object as modified and persist
+    new_hash = get_password_hash(request.new_password)
+    user.hashed_password = new_hash
+    db.add(user)      # Explicitly mark as modified
+    db.flush()        # Write changes to database
+    db.commit()       # Commit the transaction
+    db.refresh(user)  # Refresh to verify persistence
 
     logging.info(f"Password reset successful for user: {user.email}")
+    logging.debug(f"New hash verified in DB: {user.hashed_password[:20]}...")
 
     return {"message": "Password has been reset successfully"}

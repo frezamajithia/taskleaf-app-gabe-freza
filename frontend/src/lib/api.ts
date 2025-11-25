@@ -28,8 +28,14 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Clear token and redirect to login
+    // Don't redirect for auth endpoints - let the login/register pages handle their own errors
+    const isAuthEndpoint = error.config?.url?.includes('/auth/login') ||
+                           error.config?.url?.includes('/auth/register') ||
+                           error.config?.url?.includes('/auth/forgot-password') ||
+                           error.config?.url?.includes('/auth/reset-password');
+
+    if (error.response?.status === 401 && !isAuthEndpoint) {
+      // Clear token and redirect to login (only for protected routes)
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       if (typeof window !== 'undefined') {

@@ -398,11 +398,14 @@ def get_task_stats(
     pending_tasks = total_tasks - completed_tasks
     completion_rate = (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0
 
-    # Tasks by priority
+    # Tasks by priority (total and completed)
     tasks_by_priority = {"high": 0, "medium": 0, "low": 0}
+    completed_by_priority = {"high": 0, "medium": 0, "low": 0}
     for task in tasks:
         if task.priority in tasks_by_priority:
             tasks_by_priority[task.priority] += 1
+            if task.completed:
+                completed_by_priority[task.priority] += 1
 
     # Tasks by category
     tasks_by_category = {}
@@ -417,6 +420,7 @@ def get_task_stats(
         pending_tasks=pending_tasks,
         completion_rate=round(completion_rate, 1),
         tasks_by_priority=tasks_by_priority,
+        completed_by_priority=completed_by_priority,
         tasks_by_category=tasks_by_category
     )
 

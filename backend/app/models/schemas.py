@@ -114,4 +114,5 @@ class TaskStatsResponse(BaseModel):
     pending_tasks: int
     completion_rate: float
     tasks_by_priority: dict
+    completed_by_priority: dict
     tasks_by_category: dict

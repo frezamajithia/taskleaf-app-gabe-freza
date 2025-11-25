@@ -106,7 +106,15 @@ export default function EditTaskPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-patina-50 via-white to-patina-100 dark:from-teal-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-patina-600 dark:border-teal-400"></div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-14 w-14 border-4 border-patina-200 dark:border-teal-800 border-t-patina-500 dark:border-t-teal-400"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <i className="fa-solid fa-pen text-patina-500 dark:text-teal-400 text-lg animate-pulse"></i>
+            </div>
+          </div>
+          <p className="text-patina-600 dark:text-teal-400 font-medium animate-pulse">Loading task...</p>
+        </div>
       </div>
     );
   }
@@ -281,16 +289,20 @@ export default function EditTaskPage() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="btn-secondary px-5 py-2 rounded-xl"
+              className="btn-secondary px-5 py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-200"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="btn-primary px-5 py-2 rounded-xl flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary px-5 py-2 rounded-xl flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 hover:shadow-lg hover:shadow-patina-500/30 dark:hover:shadow-teal-500/30 active:scale-95 transition-all duration-200"
             >
-              <i className="fa-solid fa-check text-sm"></i>
+              {saving ? (
+                <i className="fa-solid fa-spinner fa-spin text-sm"></i>
+              ) : (
+                <i className="fa-solid fa-check text-sm"></i>
+              )}
               <span>{saving ? 'Saving...' : 'Save Changes'}</span>
             </button>
           </div>
