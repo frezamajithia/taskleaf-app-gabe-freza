@@ -303,9 +303,10 @@ async def delete_calendar_event(
             headers=headers,
         )
 
-    if resp.status_code == 404:
-        logger.warning(f"Calendar event {event_id} not found, may have been deleted")
-        return False
+    # Handle 404 (not found) and 410 (already deleted) as success
+    if resp.status_code in (404, 410):
+        logger.warning(f"Calendar event {event_id} not found or already deleted")
+        return True  # Return True since the event is gone (which is the desired state)
 
     if resp.status_code not in (200, 204):
         logger.error(f"Failed to delete calendar event: {resp.text}")
