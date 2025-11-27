@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import { useThemeStore } from '@/lib/themeStore';
-import { tasksAPI } from '@/lib/api';
+import { analyticsAPI } from '@/lib/api';
 import { AppShell } from '@/components/layout/AppShell';
 import Highcharts from 'highcharts';
 import HighchartsMore from 'highcharts/highcharts-more';
@@ -16,17 +16,37 @@ if (typeof window !== 'undefined') {
   HighchartsSolidGauge(Highcharts);
 }
 
-interface Task {
-  id: number;
-  title: string;
-  description?: string;
-  due_date?: string;
-  priority: 'high' | 'medium' | 'low';
-  completed: boolean;
-  category?: {
-    id: number;
-    name: string;
-    color: string;
+interface AnalyticsData {
+  summary: {
+    total_tasks: number;
+    completed_tasks: number;
+    completion_rate: number;
+    productivity_score: number;
+    current_streak: number;
+    focus_hours_today: number;
+    goal_achievement_month: number;
+  };
+  trends: {
+    weekly_completion: number[];
+    weekly_focus_hours: number[];
+    week_labels: string[];
+  };
+  breakdown: {
+    categories: Array<{
+      name: string;
+      value: number;
+      percentage: number;
+    }>;
+    priority: {
+      total: { [key: string]: number };
+      completed: { [key: string]: number };
+    };
+  };
+  insights: {
+    completion_rate_change: number;
+    focus_hours_change: number;
+    streak_is_record: boolean;
+    month_achievement_change: number;
   };
 }
 
@@ -34,7 +54,7 @@ export default function AnalyticsPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading, loadUser, logout } = useAuthStore();
   const { isDarkMode, toggleDarkMode, initializeTheme } = useThemeStore();
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
 
   const completionChartRef = useRef<HTMLDivElement>(null);
@@ -57,21 +77,23 @@ export default function AnalyticsPage() {
       router.push('/login');
       return;
     }
-    fetchTasks();
+    fetchAnalytics();
   }, [isAuthenticated, authLoading, router]);
 
-  const fetchTasks = async () => {
+  const fetchAnalytics = async () => {
     try {
-      const response = await tasksAPI.getAll();
-      setTasks(response.data);
+      const response = await analyticsAPI.getMetrics();
+      setAnalyticsData(response.data);
     } catch (error) {
-      console.error('Failed to fetch tasks:', error);
+      console.error('Failed to fetch analytics:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const initializeCharts = useCallback(() => {
+    if (!analyticsData) return;
+
     // Dark mode colors
     const labelColor = isDarkMode ? '#8BBDB5' : '#609A93';
     const gridColor = isDarkMode ? 'rgba(139, 189, 181, 0.1)' : 'rgba(183, 216, 210, 0.1)';
@@ -89,7 +111,7 @@ export default function AnalyticsPage() {
         title: { text: undefined },
         credits: { enabled: false },
         xAxis: {
-          categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          categories: analyticsData.trends.week_labels,
           gridLineWidth: 0,
           lineWidth: 0,
           tickWidth: 0,
@@ -114,18 +136,44 @@ export default function AnalyticsPage() {
         },
         series: [{
           name: 'Completion %',
-          data: [75, 82, 89, 91, 87, 93, 95],
+          data: analyticsData.trends.weekly_completion,
           color: primaryColor,
           type: 'line'
         }]
       });
     }
 
-    // Category Breakdown Donut Chart
+    // Priority Breakdown Donut Chart
     if (categoryChartRef.current) {
-      const categoryColors = isDarkMode
-        ? ['#5EEAD4', '#4DD4BE', '#3CBCA6', '#2BA48E']
-        : ['#609A93', '#8BBDB5', '#B7D8D2', '#DBECE8'];
+      const priorityColors = isDarkMode
+        ? {
+            high: '#EF4444',    // Red for high priority
+            medium: '#F59E0B',  // Amber for medium priority
+            low: '#10B981'      // Green for low priority
+          }
+        : {
+            high: '#DC2626',    // Darker red for high priority
+            medium: '#D97706',  // Darker amber for medium priority
+            low: '#059669'      // Darker green for low priority
+          };
+
+      const priorityData = [
+        {
+          name: 'High Priority',
+          y: analyticsData.breakdown.priority.total.high || 0,
+          color: priorityColors.high
+        },
+        {
+          name: 'Medium Priority',
+          y: analyticsData.breakdown.priority.total.medium || 0,
+          color: priorityColors.medium
+        },
+        {
+          name: 'Low Priority',
+          y: analyticsData.breakdown.priority.total.low || 0,
+          color: priorityColors.low
+        }
+      ].filter(item => item.y > 0); // Only show priorities that have tasks
 
       Highcharts.chart(categoryChartRef.current, {
         chart: {
@@ -152,13 +200,10 @@ export default function AnalyticsPage() {
           }
         },
         series: [{
-          name: 'Categories',
+          name: 'Priority',
           type: 'pie',
-          data: [
-            { name: 'Work', y: 45, color: categoryColors[0] },
-            { name: 'Personal', y: 25, color: categoryColors[1] },
-            { name: 'Learning', y: 20, color: categoryColors[2] },
-            { name: 'Health', y: 10, color: categoryColors[3] }
+          data: priorityData.length > 0 ? priorityData : [
+            { name: 'No Tasks', y: 1, color: primaryColor }
           ]
         }]
       });
@@ -213,7 +258,7 @@ export default function AnalyticsPage() {
         series: [{
           name: 'Productivity',
           type: 'solidgauge',
-          data: [87],
+          data: [analyticsData.summary.productivity_score],
           dataLabels: {
             format: `<div style="text-align:center"><span style="font-size:24px;color:${textColor};font-weight:bold">{y}</span><br/><span style="font-size:12px;color:${labelColor};opacity:0.7">Score</span></div>`
           }
@@ -232,7 +277,7 @@ export default function AnalyticsPage() {
         title: { text: undefined },
         credits: { enabled: false },
         xAxis: {
-          categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          categories: analyticsData.trends.week_labels,
           gridLineWidth: 0,
           lineWidth: 0,
           tickWidth: 0,
@@ -255,32 +300,29 @@ export default function AnalyticsPage() {
         series: [{
           name: 'Focus Hours',
           type: 'column',
-          data: [5.2, 6.1, 4.8, 7.2, 6.5, 3.8, 5.9],
+          data: analyticsData.trends.weekly_focus_hours,
           color: primaryColor
         }]
       });
     }
-  }, [isDarkMode]);
+  }, [isDarkMode, analyticsData]);
 
   useEffect(() => {
-    if (!loading && typeof window !== 'undefined') {
+    if (!loading && typeof window !== 'undefined' && analyticsData) {
       initializeCharts();
     }
-  }, [loading, initializeCharts]);
+  }, [loading, initializeCharts, analyticsData]);
 
   const handleLogout = async () => {
     await logout();
     router.push('/login');
   };
 
-  if (authLoading || !isAuthenticated || loading) {
+  if (authLoading || !isAuthenticated || loading || !analyticsData) {
     return null;
   }
 
-  // Calculate metrics
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(t => t.completed).length;
-  const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 87;
+  const { summary, insights } = analyticsData;
 
   return (
     <AppShell
@@ -301,11 +343,15 @@ export default function AnalyticsPage() {
               </div>
               <span className="text-xs text-patina-500 dark:text-teal-400 opacity-70">This Week</span>
             </div>
-            <h3 className="text-2xl font-bold text-patina-700 dark:text-teal-100 mb-2">{completionRate}%</h3>
+            <h3 className="text-2xl font-bold text-patina-700 dark:text-teal-100 mb-2">
+              {summary.completion_rate}%
+            </h3>
             <p className="text-sm text-patina-600 dark:text-teal-300">Task Completion</p>
             <div className="mt-4 flex items-center text-xs">
-              <i className="fa-solid fa-arrow-up text-green-500 dark:text-green-400 mr-1"></i>
-              <span className="text-green-600 dark:text-green-400">+12% from last week</span>
+              <i className={`fa-solid fa-arrow-${insights.completion_rate_change >= 0 ? 'up' : 'down'} text-${insights.completion_rate_change >= 0 ? 'green' : 'red'}-500 dark:text-${insights.completion_rate_change >= 0 ? 'green' : 'red'}-400 mr-1`}></i>
+              <span className={`text-${insights.completion_rate_change >= 0 ? 'green' : 'red'}-600 dark:text-${insights.completion_rate_change >= 0 ? 'green' : 'red'}-400`}>
+                {insights.completion_rate_change >= 0 ? '+' : ''}{insights.completion_rate_change}% from last week
+              </span>
             </div>
           </div>
 
@@ -316,11 +362,15 @@ export default function AnalyticsPage() {
               </div>
               <span className="text-xs text-patina-500 dark:text-teal-400 opacity-70">Today</span>
             </div>
-            <h3 className="text-2xl font-bold text-patina-700 dark:text-teal-100 mb-2">6.2h</h3>
+            <h3 className="text-2xl font-bold text-patina-700 dark:text-teal-100 mb-2">
+              {summary.focus_hours_today}h
+            </h3>
             <p className="text-sm text-patina-600 dark:text-teal-300">Focus Time</p>
             <div className="mt-4 flex items-center text-xs">
-              <i className="fa-solid fa-arrow-up text-green-500 dark:text-green-400 mr-1"></i>
-              <span className="text-green-600 dark:text-green-400">+0.8h from yesterday</span>
+              <i className={`fa-solid fa-arrow-${insights.focus_hours_change >= 0 ? 'up' : 'down'} text-${insights.focus_hours_change >= 0 ? 'green' : 'red'}-500 dark:text-${insights.focus_hours_change >= 0 ? 'green' : 'red'}-400 mr-1`}></i>
+              <span className={`text-${insights.focus_hours_change >= 0 ? 'green' : 'red'}-600 dark:text-${insights.focus_hours_change >= 0 ? 'green' : 'red'}-400`}>
+                {insights.focus_hours_change >= 0 ? '+' : ''}{insights.focus_hours_change}h from yesterday
+              </span>
             </div>
           </div>
 
@@ -331,11 +381,15 @@ export default function AnalyticsPage() {
               </div>
               <span className="text-xs text-patina-500 dark:text-teal-400 opacity-70">Current</span>
             </div>
-            <h3 className="text-2xl font-bold text-patina-700 dark:text-teal-100 mb-2">12</h3>
+            <h3 className="text-2xl font-bold text-patina-700 dark:text-teal-100 mb-2">
+              {summary.current_streak}
+            </h3>
             <p className="text-sm text-patina-600 dark:text-teal-300">Day Streak</p>
             <div className="mt-4 flex items-center text-xs">
               <i className="fa-solid fa-arrow-up text-green-500 dark:text-green-400 mr-1"></i>
-              <span className="text-green-600 dark:text-green-400">Personal best!</span>
+              <span className="text-green-600 dark:text-green-400">
+                {insights.streak_is_record ? 'Personal best!' : 'Keep it up!'}
+              </span>
             </div>
           </div>
 
@@ -346,11 +400,15 @@ export default function AnalyticsPage() {
               </div>
               <span className="text-xs text-patina-500 dark:text-teal-400 opacity-70">This Month</span>
             </div>
-            <h3 className="text-2xl font-bold text-patina-700 dark:text-teal-100 mb-2">94%</h3>
+            <h3 className="text-2xl font-bold text-patina-700 dark:text-teal-100 mb-2">
+              {summary.goal_achievement_month}%
+            </h3>
             <p className="text-sm text-patina-600 dark:text-teal-300">Goal Achievement</p>
             <div className="mt-4 flex items-center text-xs">
-              <i className="fa-solid fa-arrow-up text-green-500 dark:text-green-400 mr-1"></i>
-              <span className="text-green-600 dark:text-green-400">+7% from last month</span>
+              <i className={`fa-solid fa-arrow-${insights.month_achievement_change >= 0 ? 'up' : 'down'} text-${insights.month_achievement_change >= 0 ? 'green' : 'red'}-500 dark:text-${insights.month_achievement_change >= 0 ? 'green' : 'red'}-400 mr-1`}></i>
+              <span className={`text-${insights.month_achievement_change >= 0 ? 'green' : 'red'}-600 dark:text-${insights.month_achievement_change >= 0 ? 'green' : 'red'}-400`}>
+                {insights.month_achievement_change >= 0 ? '+' : ''}{insights.month_achievement_change}% from last month
+              </span>
             </div>
           </div>
         </div>
@@ -370,7 +428,7 @@ export default function AnalyticsPage() {
           </div>
 
           <div className="glass-card rounded-3xl p-6">
-            <h3 className="text-lg font-semibold text-patina-700 dark:text-teal-100 mb-6">Category Breakdown</h3>
+            <h3 className="text-lg font-semibold text-patina-700 dark:text-teal-100 mb-6">Priority Breakdown</h3>
             <div ref={categoryChartRef} className="chart-container h-64"></div>
           </div>
         </div>
@@ -398,8 +456,12 @@ export default function AnalyticsPage() {
                   <i className="fa-solid fa-trophy text-green-600 dark:text-green-300 text-sm"></i>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-patina-700 dark:text-teal-100">Personal Best!</p>
-                  <p className="text-xs text-patina-600 dark:text-teal-300 opacity-70">12-day productivity streak</p>
+                  <p className="text-sm font-medium text-patina-700 dark:text-teal-100">
+                    {insights.streak_is_record ? 'Personal Best!' : 'Great Streak!'}
+                  </p>
+                  <p className="text-xs text-patina-600 dark:text-teal-300 opacity-70">
+                    {summary.current_streak}-day productivity streak
+                  </p>
                 </div>
               </div>
 
@@ -408,8 +470,12 @@ export default function AnalyticsPage() {
                   <i className="fa-solid fa-star text-blue-600 dark:text-blue-300 text-sm"></i>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-patina-700 dark:text-teal-100">Excellent Focus</p>
-                  <p className="text-xs text-patina-600 dark:text-teal-300 opacity-70">6+ hours deep work today</p>
+                  <p className="text-sm font-medium text-patina-700 dark:text-teal-100">
+                    {summary.focus_hours_today >= 6 ? 'Excellent Focus' : 'Good Progress'}
+                  </p>
+                  <p className="text-xs text-patina-600 dark:text-teal-300 opacity-70">
+                    {summary.focus_hours_today} hours deep work today
+                  </p>
                 </div>
               </div>
 
@@ -418,8 +484,12 @@ export default function AnalyticsPage() {
                   <i className="fa-solid fa-bullseye text-purple-600 dark:text-purple-300 text-sm"></i>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-patina-700 dark:text-teal-100">Goal Crusher</p>
-                  <p className="text-xs text-patina-600 dark:text-teal-300 opacity-70">94% monthly achievement</p>
+                  <p className="text-sm font-medium text-patina-700 dark:text-teal-100">
+                    {summary.goal_achievement_month >= 90 ? 'Goal Crusher' : 'Making Progress'}
+                  </p>
+                  <p className="text-xs text-patina-600 dark:text-teal-300 opacity-70">
+                    {summary.goal_achievement_month}% monthly achievement
+                  </p>
                 </div>
               </div>
             </div>

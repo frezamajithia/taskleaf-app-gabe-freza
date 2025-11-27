@@ -2,7 +2,7 @@
 Pydantic schemas for request/response validation
 """
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, List
+from typing import Optional, List, Dict
 from datetime import datetime
 
 
@@ -116,3 +116,93 @@ class TaskStatsResponse(BaseModel):
     tasks_by_priority: dict
     completed_by_priority: dict
     tasks_by_category: dict
+
+# Analytics schemas for the dashboard
+class AnalyticsSummary(BaseModel):
+    total_tasks: int
+    completed_tasks: int
+    completion_rate: float
+    productivity_score: int
+    current_streak: int
+    focus_hours_today: float
+    goal_achievement_month: float
+
+
+class AnalyticsTrends(BaseModel):
+    weekly_completion: List[float]
+    weekly_focus_hours: List[float]
+    week_labels: List[str]
+
+
+class CategoryBreakdownItem(BaseModel):
+    name: str
+    value: int
+    percentage: float
+
+
+class PriorityBreakdown(BaseModel):
+    total: Dict[str, int]
+    completed: Dict[str, int]
+
+
+class AnalyticsBreakdown(BaseModel):
+    categories: List[CategoryBreakdownItem]
+    priority: PriorityBreakdown
+
+
+class AnalyticsInsights(BaseModel):
+    completion_rate_change: float
+    focus_hours_change: float
+    streak_is_record: bool
+    month_achievement_change: float
+
+
+class AnalyticsMetricsResponse(BaseModel):
+    summary: AnalyticsSummary
+    trends: AnalyticsTrends
+    breakdown: AnalyticsBreakdown
+    insights: AnalyticsInsights
+
+
+class DailyStatsItem(BaseModel):
+    date: str
+    total: int
+    completed: int
+    completion_rate: float
+
+
+class DailyStatsResponse(BaseModel):
+    stats: List[DailyStatsItem]
+
+class PomodoroSessionCreate(BaseModel):
+    session_type: str = "work"  # work, shortBreak, longBreak
+    target_duration: int = 25
+
+
+class PomodoroSessionUpdate(BaseModel):
+    elapsed_minutes: int
+    is_completed: Optional[bool] = None
+
+
+class PomodoroSessionResponse(BaseModel):
+    id: int
+    session_type: str
+    target_duration: int
+    elapsed_minutes: int
+    is_completed: bool
+    started_at: datetime
+    last_updated: datetime
+    completed_at: Optional[datetime]
+    
+    class Config:
+        from_attributes = True
+
+
+class PomodoroStatsResponse(BaseModel):
+    today_sessions: int
+    today_focus_minutes: int
+    week_sessions: int
+    week_focus_minutes: int
+    total_sessions: int
+    total_focus_hours: float
+    daily_breakdown: List[Dict]

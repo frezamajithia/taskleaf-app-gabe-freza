@@ -7,7 +7,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.core.config import settings
 from app.core.database import engine, Base
-from app.routes import auth, tasks, calendar
+from app.routes import auth, tasks, calendar, analytics, pomodoro
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -45,6 +45,9 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api")
 app.include_router(tasks.router, prefix="/api/tasks")
 app.include_router(calendar.router, prefix="/api/calendar")
+app.include_router(analytics.router, prefix="/api/analytics")
+app.include_router(pomodoro.router, prefix="/api/pomodoro")
+
 
 
 @app.get("/")

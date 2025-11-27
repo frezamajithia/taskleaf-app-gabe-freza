@@ -14,6 +14,7 @@ import {
   Menu,
   ChevronLeft,
   Leaf,
+  Clock9,
 } from 'lucide-react';
 import { NotificationBell } from '@/components/NotificationBell';
 import { cn } from '@/lib/utils';
@@ -44,6 +45,7 @@ const navItems: NavItem[] = [
   { label: 'Calendar', href: '/calendar', icon: CalendarRange },
   { label: 'Tasks', href: '/tasks', icon: CheckSquare },
   { label: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { label: 'Pomodoro', href: '/pomodoro', icon: Clock9 },
   { label: 'Settings', href: '/settings', icon: Settings },
 ];
 

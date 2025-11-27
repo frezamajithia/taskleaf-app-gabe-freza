@@ -4,9 +4,7 @@ User model for authentication
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-
 from app.core.database import Base
-
 
 class User(Base):
     """User model for authentication and profile"""
@@ -31,6 +29,7 @@ class User(Base):
     # Relationships
     tasks = relationship("Task", back_populates="owner", cascade="all, delete-orphan")
     categories = relationship("Category", back_populates="owner", cascade="all, delete-orphan")
-    
+    pomodoro_sessions = relationship("PomodoroSession", back_populates="owner")
+
     def __repr__(self):
         return f"<User {self.email}>"

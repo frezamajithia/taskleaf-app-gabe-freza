@@ -152,3 +152,34 @@ export const calendarAPI = {
   // Google OAuth login URL
   getGoogleLoginUrl: () => `${API_URL}/auth/google/login`,
 };
+export const analyticsAPI = {
+  getMetrics: () => api.get('/analytics/metrics'),
+  getDailyStats: (days: number = 30) => 
+    api.get('/analytics/daily-stats', { params: { days } }),
+};
+// Pomodoro API methods
+export const pomodoroAPI = {
+  // Create a new session
+  createSession: (data: { session_type: string; target_duration: number }) => 
+    api.post('/pomodoro/sessions', data),
+  
+  // Update session progress (called every minute)
+  updateSession: (sessionId: number, data: { elapsed_minutes: number; is_completed?: boolean }) => 
+    api.put(`/pomodoro/sessions/${sessionId}`, data),
+  
+  // Get active session
+  getActiveSession: () => 
+    api.get('/pomodoro/sessions/active'),
+  
+  // Get recent sessions
+  getSessions: (days: number = 7) => 
+    api.get('/pomodoro/sessions', { params: { days } }),
+  
+  // Get statistics
+  getStats: () => 
+    api.get('/pomodoro/stats'),
+  
+  // Delete a session
+  deleteSession: (id: number) => 
+    api.delete(`/pomodoro/sessions/${id}`),
+};

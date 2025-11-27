@@ -71,3 +71,26 @@ class Category(Base):
     
     def __repr__(self):
         return f"<Category {self.name}>"
+class PomodoroSession(Base):
+    """Track pomodoro sessions with minute-by-minute progress"""
+    __tablename__ = "pomodoro_sessions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    
+    # Session details
+    session_type = Column(String, default="work")  # work, shortBreak, longBreak
+    target_duration = Column(Integer, default=25)  # Target minutes
+    elapsed_minutes = Column(Integer, default=0)  # Actual minutes elapsed
+    is_completed = Column(Boolean, default=False)  # Whether session finished
+    
+    # Timestamps
+    started_at = Column(DateTime(timezone=True), server_default=func.now())
+    last_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    
+    # Relationship - must match back_populates in User model
+    owner = relationship("User", back_populates="pomodoro_sessions")
+    
+    def __repr__(self):
+        return f"<PomodoroSession {self.id} - {self.elapsed_minutes}/{self.target_duration}m>"
