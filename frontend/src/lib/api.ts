@@ -151,6 +151,37 @@ export const calendarAPI = {
 
   // Google OAuth login URL
   getGoogleLoginUrl: () => `${API_URL}/auth/google/login`,
+    getLocalEvents: (params?: { start_date?: string; end_date?: string }) => 
+    api.get('/calendar/local-events', { params }),
+  
+  createLocalEvent: (data: {
+    title: string;
+    description?: string;
+    date?: string;
+    time?: string;
+    location?: string;
+    recurrence?: string;
+    tag?: string;
+    color?: string;
+    google_event_id?: string;
+  }) => 
+    api.post('/calendar/local-events', data),
+  
+  updateLocalEvent: (eventId: number, data: {
+    title?: string;
+    description?: string;
+    date?: string;
+    time?: string;
+    location?: string;
+    recurrence?: string;
+    tag?: string;
+    color?: string;
+    google_event_id?: string;
+  }) => 
+    api.put(`/calendar/local-events/${eventId}`, data),
+  
+  deleteLocalEvent: (eventId: number) => 
+    api.delete(`/calendar/local-events/${eventId}`),
 };
 export const analyticsAPI = {
   getMetrics: () => api.get('/analytics/metrics'),

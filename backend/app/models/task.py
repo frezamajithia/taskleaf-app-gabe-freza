@@ -1,6 +1,7 @@
 """
 Task/Event model
 """
+from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -94,3 +95,37 @@ class PomodoroSession(Base):
     
     def __repr__(self):
         return f"<PomodoroSession {self.id} - {self.elapsed_minutes}/{self.target_duration}m>"
+
+class CalendarEvent(Base):
+    __tablename__ = "calendar_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    
+    # Event details
+    title = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    date = Column(String(10), nullable=True)  # ISO format: YYYY-MM-DD
+    time = Column(String(5), nullable=True)  # HH:MM format
+    location = Column(String(255), nullable=True)
+    
+    # Recurrence
+    recurrence = Column(String(20), default="none")  # none, daily, weekly, monthly, yearly
+    recurrence_end_date = Column(String(10), nullable=True)  # ISO format: YYYY-MM-DD
+    
+    # Visual/organizational
+    tag = Column(String(100), nullable=True)
+    color = Column(String(7), default="#14b8a6")  # Hex color code
+    
+    # Google Calendar sync
+    google_event_id = Column(String(255), nullable=True, unique=True)  # Google Calendar event ID if synced
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    
+    # Relationships
+    owner = relationship("User", back_populates="calendar_events")
+
+    def __repr__(self):
+        return f"<CalendarEvent(id={self.id}, title='{self.title}', date='{self.date}', user_id={self.user_id})>"

@@ -34,11 +34,11 @@ TaskLeaf is a comprehensive task and calendar management solution, much like som
 - **Theme Support:** Light and dark mode with smooth transitions
 - **UI Polish:** Micro-interactions, hover effects, loading states, and animations throughout the interface
 - **Responsive Design:** Mobile-first design that works on all device sizes
-
+- **Analytics Enhancement:** The current Analytics dashboard provides demonstration data. Real-time data aggregation as users interact with the application would be beneficial.
+- **Pomodoro Timer:** Pomodoro 
 ### Future Improvements
 
 - **Settings Tab:** The current Settings tab is interactive and allows theme switching. A more comprehensive settings panel with user preferences could be implemented.
-- **Analytics Enhancement:** The current Analytics dashboard provides demonstration data. Real-time data aggregation as users interact with the application would be beneficial.
 - **Additional Themes:** The UI could be extended to support additional color themes beyond light and dark mode.
 - **Email Service Integration:** Backend integration for email delivery (password reset emails, notifications, and reminders). Currently, password reset works but displays the reset link on screen instead of sending an email, which is suitable for demonstration purposes.
 
@@ -241,6 +241,10 @@ TaskLeaf implements a **three-tier architecture**:
 - `DELETE /api/tasks/bulk` - Bulk delete tasks
 - `GET /api/calendar/events` - List calendar events
 - `POST /api/calendar/events` - Create calendar event
+- `POST /pomodoro/sessions` - Create Sessions
+- `GET /pomdoro/sessions/active` - Get Each Active Pomodoro Session
+- `GET /pomdoro/sessions` - Get all pomodoro sessions
+- `GET /pomdoro/stats` - Get pomdoro statistics
 
 ### API Documentation
 

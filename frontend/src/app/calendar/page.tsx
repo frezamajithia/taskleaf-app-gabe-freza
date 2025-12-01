@@ -75,10 +75,6 @@ export default function CalendarPage() {
 
   useEffect(() => {
     loadUser();
-    const storedEvents = localStorage.getItem('calendar_events');
-    if (storedEvents) {
-      setEvents(JSON.parse(storedEvents));
-    }
   }, [loadUser]);
 
   useEffect(() => {
@@ -92,14 +88,11 @@ export default function CalendarPage() {
       return;
     }
     fetchTasks();
+    fetchLocalEvents(); // Fetch from database
     if (user?.google_id) {
       fetchGoogleCalendarEvents();
     }
   }, [isAuthenticated, isLoading, router, user?.google_id]);
-
-  useEffect(() => {
-    localStorage.setItem('calendar_events', JSON.stringify(events));
-  }, [events]);
 
   const fetchTasks = async () => {
     try {
@@ -107,6 +100,37 @@ export default function CalendarPage() {
       setTasks(response.data);
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
+    }
+  };
+
+  const fetchLocalEvents = async () => {
+    try {
+      // Fetch user-specific events from database
+      const today = new Date();
+      const startDate = new Date(today.getFullYear(), today.getMonth() - 6, 1);
+      const endDate = new Date(today.getFullYear(), today.getMonth() + 12, 0);
+      
+      const response = await calendarAPI.getLocalEvents({
+        start_date: startDate.toISOString().split('T')[0],
+        end_date: endDate.toISOString().split('T')[0],
+      });
+      
+      // Convert backend events to frontend format
+      const formattedEvents: CalendarEvent[] = response.data.map((event: any) => ({
+        id: event.id.toString(),
+        title: event.title,
+        date: event.date,
+        time: event.time,
+        tag: event.tag,
+        color: event.color,
+        googleEventId: event.google_event_id,
+        recurrence: event.recurrence as RecurrenceType,
+        recurrenceEndDate: event.recurrence_end_date,
+      }));
+      
+      setEvents(formattedEvents);
+    } catch (error) {
+      console.error('Failed to fetch local events:', error);
     }
   };
 
@@ -261,20 +285,19 @@ export default function CalendarPage() {
           return;
         }
 
-        setEvents(events.map(e =>
-          e.id === selectedEvent.id
-            ? {
-                ...e,
-                title: eventForm.title,
-                time: eventForm.time,
-                tag: eventForm.tag,
-                color: eventForm.color,
-                googleEventId,
-                recurrence: eventForm.recurrence,
-                recurrenceEndDate: eventForm.recurrenceEndDate
-              }
-            : e
-        ));
+        // Update in database
+        await calendarAPI.updateLocalEvent(parseInt(selectedEvent.id), {
+          title: eventForm.title,
+          date: eventDate,
+          time: eventForm.time,
+          tag: eventForm.tag,
+          color: eventForm.color,
+          recurrence: eventForm.recurrence,
+          google_event_id: googleEventId,
+        });
+
+        // Refresh from database
+        await fetchLocalEvents();
       } else {
         // Creating new event
         let googleEventId: string | undefined;
@@ -291,18 +314,20 @@ export default function CalendarPage() {
           googleEventId = response.data.event?.id;
         }
 
-        const newEvent: CalendarEvent = {
-          id: Date.now().toString(),
+        // Create in database
+        await calendarAPI.createLocalEvent({
           title: eventForm.title,
+          description: eventForm.tag,
           date: eventDate,
           time: eventForm.time,
           tag: eventForm.tag,
           color: eventForm.color,
-          googleEventId,
           recurrence: eventForm.recurrence,
-          recurrenceEndDate: eventForm.recurrenceEndDate
-        };
-        setEvents([...events, newEvent]);
+          google_event_id: googleEventId,
+        });
+
+        // Refresh from database
+        await fetchLocalEvents();
       }
 
       // Refresh Google events to show the synced event
@@ -315,19 +340,6 @@ export default function CalendarPage() {
     } catch (error: any) {
       console.error('Failed to save event:', error);
       showToast(error.response?.data?.detail || 'Failed to sync with Google Calendar. Event saved locally.', 'error');
-
-      // Still save locally even if Google sync fails
-      if (!selectedEvent) {
-        const newEvent: CalendarEvent = {
-          id: Date.now().toString(),
-          title: eventForm.title,
-          date: eventDate,
-          time: eventForm.time,
-          tag: eventForm.tag,
-          color: eventForm.color
-        };
-        setEvents([...events, newEvent]);
-      }
       closeEventModal();
     } finally {
       setIsSavingEvent(false);
@@ -354,10 +366,13 @@ export default function CalendarPage() {
           await calendarAPI.deleteEvent(googleId);
         }
 
-        // Remove from local state (only if it's a local event)
+        // Delete from database (only if it's a local event)
         if (!isGoogleEvent) {
-          setEvents(events.filter(e => e.id !== selectedEvent.id));
+          await calendarAPI.deleteLocalEvent(parseInt(selectedEvent.id));
         }
+
+        // Refresh from database
+        await fetchLocalEvents();
 
         // Refresh Google events
         if (user?.google_id) {

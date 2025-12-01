@@ -206,3 +206,45 @@ class PomodoroStatsResponse(BaseModel):
     total_sessions: int
     total_focus_hours: float
     daily_breakdown: List[Dict]
+class CalendarEventCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    date: Optional[str] = None  # ISO format date
+    time: Optional[str] = None  # HH:MM format
+    location: Optional[str] = None
+    recurrence: Optional[str] = None  # none, daily, weekly, monthly, yearly
+    tag: Optional[str] = None
+    color: Optional[str] = "#14b8a6"
+    google_event_id: Optional[str] = None  # If synced with Google
+
+
+class CalendarEventUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    date: Optional[str] = None
+    time: Optional[str] = None
+    location: Optional[str] = None
+    recurrence: Optional[str] = None
+    tag: Optional[str] = None
+    color: Optional[str] = None
+    google_event_id: Optional[str] = None
+
+
+class CalendarEventResponse(BaseModel):
+    id: int
+    title: str
+    description: Optional[str]
+    date: Optional[str]
+    time: Optional[str]
+    location: Optional[str]
+    recurrence: Optional[str]
+    recurrence_end_date: Optional[str]
+    tag: Optional[str]
+    color: str
+    google_event_id: Optional[str]
+    user_id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

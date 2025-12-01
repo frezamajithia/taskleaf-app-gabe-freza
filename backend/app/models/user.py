@@ -30,6 +30,6 @@ class User(Base):
     tasks = relationship("Task", back_populates="owner", cascade="all, delete-orphan")
     categories = relationship("Category", back_populates="owner", cascade="all, delete-orphan")
     pomodoro_sessions = relationship("PomodoroSession", back_populates="owner")
-
+    calendar_events = relationship("CalendarEvent", back_populates="owner", cascade="all, delete-orphan")
     def __repr__(self):
         return f"<User {self.email}>"
