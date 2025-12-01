@@ -35,7 +35,7 @@ TaskLeaf is a comprehensive task and calendar management solution, much like som
 - **UI Polish:** Micro-interactions, hover effects, loading states, and animations throughout the interface
 - **Responsive Design:** Mobile-first design that works on all device sizes
 - **Analytics Enhancement:** The current Analytics dashboard provides demonstration data. Real-time data aggregation as users interact with the application would be beneficial.
-- **Pomodoro Timer:** Pomodoro 
+- **Pomodoro Timer:** Pomodoro Timer Page to track a users focus
 ### Future Improvements
 
 - **Settings Tab:** The current Settings tab is interactive and allows theme switching. A more comprehensive settings panel with user preferences could be implemented.
