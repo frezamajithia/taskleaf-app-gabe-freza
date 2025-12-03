@@ -56,6 +56,7 @@ export default function CalendarPage() {
   const [googleEvents, setGoogleEvents] = useState<CalendarEvent[]>([]);
   const [showGoogleEvents, setShowGoogleEvents] = useState(true);
   const [isSyncingGoogle, setIsSyncingGoogle] = useState(false);
+  const [isGoogleConnected, setIsGoogleConnected] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -87,12 +88,21 @@ export default function CalendarPage() {
       router.push('/login');
       return;
     }
-    fetchTasks();
-    fetchLocalEvents(); // Fetch from database
-    if (user?.google_id) {
-      fetchGoogleCalendarEvents();
-    }
-  }, [isAuthenticated, isLoading, router, user?.google_id]);
+
+    const initializeCalendar = async () => {
+      fetchTasks();
+      fetchLocalEvents(); // Fetch from database
+
+      // Check actual Google Calendar connection status from backend
+      // This verifies the user has a valid refresh token, not just a google_id
+      const connected = await checkGoogleCalendarStatus();
+      if (connected) {
+        fetchGoogleCalendarEvents();
+      }
+    };
+
+    initializeCalendar();
+  }, [isAuthenticated, isLoading, router]);
 
   const fetchTasks = async () => {
     try {
@@ -100,6 +110,18 @@ export default function CalendarPage() {
       setTasks(response.data);
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
+    }
+  };
+
+  const checkGoogleCalendarStatus = async () => {
+    try {
+      const response = await calendarAPI.getStatus();
+      setIsGoogleConnected(response.data.connected);
+      return response.data.connected;
+    } catch (error) {
+      console.error('Failed to check Google Calendar status:', error);
+      setIsGoogleConnected(false);
+      return false;
     }
   };
 
@@ -134,7 +156,7 @@ export default function CalendarPage() {
     }
   };
 
-  const fetchGoogleCalendarEvents = async () => {
+  const fetchGoogleCalendarEvents = async (showError: boolean = false): Promise<boolean> => {
     try {
       setIsSyncingGoogle(true);
       // Fetch a wider range (6 months back, 12 months forward) to capture recurring events
@@ -161,22 +183,33 @@ export default function CalendarPage() {
       });
 
       setGoogleEvents(formattedEvents);
+      return true;
     } catch (error: any) {
       if (error.response?.status === 400) {
         console.log('Google Calendar not connected');
+        if (showError) {
+          showToast('Google Calendar not connected. Please reconnect your account.', 'error');
+        }
       } else {
         console.error('Failed to fetch Google Calendar events:', error);
+        if (showError) {
+          showToast('Failed to fetch Google Calendar events', 'error');
+        }
       }
+      return false;
     } finally {
       setIsSyncingGoogle(false);
     }
   };
 
   const handleGoogleCalendarSync = async () => {
-    if (user?.google_id) {
-      await fetchGoogleCalendarEvents();
-      showToast('Google Calendar synced!', 'success');
+    if (isGoogleConnected) {
+      const success = await fetchGoogleCalendarEvents(true);
+      if (success) {
+        showToast('Google Calendar synced!', 'success');
+      }
     } else {
+      // Redirect to Google OAuth to connect/reconnect
       window.location.href = calendarAPI.getGoogleLoginUrl();
     }
   };
@@ -207,7 +240,7 @@ export default function CalendarPage() {
         time: defaultTime,
         tag: '',
         color: '#14b8a6',
-        syncToGoogle: !!user?.google_id, // Default to true if Google is connected
+        syncToGoogle: isGoogleConnected, // Default to true if Google is connected
         recurrence: 'none',
         recurrenceEndDate: ''
       });
@@ -247,7 +280,7 @@ export default function CalendarPage() {
         // Check if this is a Google-originated event (id starts with 'google-')
         const isGoogleEvent = selectedEvent.id.startsWith('google-');
 
-        if (eventForm.syncToGoogle && user?.google_id) {
+        if (eventForm.syncToGoogle && isGoogleConnected) {
           if (googleEventId) {
             // Update existing Google Calendar event
             await calendarAPI.updateEvent(googleEventId, {
@@ -302,7 +335,7 @@ export default function CalendarPage() {
         // Creating new event
         let googleEventId: string | undefined;
 
-        if (eventForm.syncToGoogle && user?.google_id) {
+        if (eventForm.syncToGoogle && isGoogleConnected) {
           // Create event in Google Calendar
           const response = await calendarAPI.createEvent({
             title: eventForm.title,
@@ -331,7 +364,7 @@ export default function CalendarPage() {
       }
 
       // Refresh Google events to show the synced event
-      if (eventForm.syncToGoogle && user?.google_id) {
+      if (eventForm.syncToGoogle && isGoogleConnected) {
         fetchGoogleCalendarEvents();
       }
 
@@ -358,9 +391,9 @@ export default function CalendarPage() {
         const isGoogleEvent = selectedEvent.id.startsWith('google-');
 
         // Delete from Google Calendar if synced
-        if (selectedEvent.googleEventId && user?.google_id) {
+        if (selectedEvent.googleEventId && isGoogleConnected) {
           await calendarAPI.deleteEvent(selectedEvent.googleEventId);
-        } else if (isGoogleEvent && user?.google_id) {
+        } else if (isGoogleEvent && isGoogleConnected) {
           // Extract the actual Google event ID from the prefixed ID
           const googleId = selectedEvent.id.replace('google-', '');
           await calendarAPI.deleteEvent(googleId);
@@ -375,7 +408,7 @@ export default function CalendarPage() {
         await fetchLocalEvents();
 
         // Refresh Google events
-        if (user?.google_id) {
+        if (isGoogleConnected) {
           fetchGoogleCalendarEvents();
         }
 
@@ -716,7 +749,7 @@ export default function CalendarPage() {
                 </svg>
                 <span className="text-sm font-semibold text-patina-700 dark:text-teal-200">Google Calendar</span>
               </div>
-              {user?.google_id ? (
+              {isGoogleConnected ? (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
                     <i className="fa-solid fa-check-circle"></i>
@@ -1498,11 +1531,11 @@ export default function CalendarPage() {
                         )}
                       </p>
                       <p className="text-xs text-patina-500 dark:text-teal-400 mt-0.5">
-                        {user?.google_id
+                        {isGoogleConnected
                           ? selectedEvent?.googleEventId
                             ? 'This event is linked to your Google Calendar'
                             : 'Add this event to your Google Calendar'
-                          : 'Sign in with Google to enable sync'}
+                          : 'Connect Google Calendar to enable sync'}
                       </p>
                     </div>
                   </div>
@@ -1511,11 +1544,11 @@ export default function CalendarPage() {
                       type="checkbox"
                       checked={eventForm.syncToGoogle}
                       onChange={(e) => setEventForm({ ...eventForm, syncToGoogle: e.target.checked })}
-                      disabled={!user?.google_id}
+                      disabled={!isGoogleConnected}
                       className="sr-only peer"
                     />
                     <div className={`w-12 h-7 rounded-full peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-teal-500 transition-all duration-300 ${
-                      user?.google_id
+                      isGoogleConnected
                         ? 'bg-patina-200/80 dark:bg-teal-600/80 peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-teal-400 dark:peer-checked:to-teal-500'
                         : 'bg-patina-100/50 dark:bg-teal-700/50 cursor-not-allowed'
                     }`}>

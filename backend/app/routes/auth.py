@@ -296,7 +296,8 @@ async def google_callback(request: Request, response: Response, db: Session = De
             "full_name": user_data.full_name,
             "is_active": user_data.is_active,
             "created_at": user_data.created_at.isoformat() if user_data.created_at else None,
-            "profile_picture": user.profile_picture
+            "profile_picture": user.profile_picture,
+            "google_id": user.google_id
         }))
         redirect_url = f"{settings.FRONTEND_URL}/auth/callback?token={access_token}&user={user_json}"
 
