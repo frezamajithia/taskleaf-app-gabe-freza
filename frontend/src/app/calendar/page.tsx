@@ -31,6 +31,21 @@ interface Task {
 
 type RecurrenceType = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
 
+// Google Calendar color IDs map to these hex colors
+const googleCalendarColors: Record<string, string> = {
+  '1': '#7986cb',  // Lavender
+  '2': '#33b679',  // Sage
+  '3': '#8e24aa',  // Grape
+  '4': '#e67c73',  // Flamingo
+  '5': '#f6bf26',  // Banana
+  '6': '#f4511e',  // Tangerine
+  '7': '#039be5',  // Peacock
+  '8': '#616161',  // Graphite
+  '9': '#3f51b5',  // Blueberry
+  '10': '#0b8043', // Basil
+  '11': '#d50000', // Tomato
+};
+
 interface CalendarEvent {
   id: string;
   title: string;
@@ -172,13 +187,17 @@ export default function CalendarPage() {
       const formattedEvents: CalendarEvent[] = response.data.items.map((event: any) => {
         const start = event.start?.dateTime || event.start?.date;
         const startDate = new Date(start);
+        // Use actual Google Calendar color if available, otherwise default to Google blue
+        const eventColor = event.colorId
+          ? googleCalendarColors[event.colorId] || '#4285f4'
+          : '#4285f4';
         return {
           id: `google-${event.id}`,
           title: event.summary || 'Untitled Event',
           date: startDate.toISOString().split('T')[0],
           time: event.start?.dateTime ? startDate.toTimeString().slice(0, 5) : undefined,
           tag: 'Google Calendar',
-          color: '#4285f4', // Google blue
+          color: eventColor,
         };
       });
 
