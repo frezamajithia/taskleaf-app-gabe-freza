@@ -4,9 +4,29 @@ A modern full-stack web application for calendar and task management with integr
 
 **Tagline:** Plan simply. Live calmly.
 
+**Run it locally:** see [Quick Start](#quick-start-local-development-with-docker) — the whole stack starts with one `docker-compose up --build`.
+
+## Screenshots
+
+| Dashboard (dark mode) | Calendar |
+|---|---|
+| ![Dashboard](docs/screenshots/dashboard-dark.png) | ![Calendar](docs/screenshots/calendar.png) |
+
+| Tasks | New Task |
+|---|---|
+| ![Tasks](docs/screenshots/tasks.png) | ![New Task](docs/screenshots/new-task.png) |
+
+| Analytics | Pomodoro Timer |
+|---|---|
+| ![Analytics](docs/screenshots/analytics-dark.png) | ![Pomodoro Timer](docs/screenshots/pomodoro.png) |
+
+| Login |
+|---|
+| ![Login](docs/screenshots/login.png) |
+
 ## Project Overview
 
-TaskLeaf is a comprehensive task and calendar management solution, much like some popular ones out there, that demonstrates modern web development practices including three-tier architecture, RESTful API design, JWT authentication, external API integration, and containerized deployment.
+TaskLeaf is a comprehensive task and calendar management solution that demonstrates modern web development practices including three-tier architecture, RESTful API design, JWT authentication, external API integration, and containerized deployment.
 
 ### Key Features
 
@@ -34,10 +54,11 @@ TaskLeaf is a comprehensive task and calendar management solution, much like som
 - **Theme Support:** Light and dark mode with smooth transitions
 - **UI Polish:** Micro-interactions, hover effects, loading states, and animations throughout the interface
 - **Responsive Design:** Mobile-first design that works on all device sizes
-- **Analytics Enhancement:** The current Analytics dashboard provides demonstration data. Real-time data aggregation as users interact with the application would be beneficial.
-- **Pomodoro Timer:** Pomodoro Timer to implement a focus timer for a users productivitiy
+- **Pomodoro Timer:** Built-in focus timer with focus, short break, and long break modes to support user productivity
+
 ### Future Improvements
 
+- **Analytics Enhancement:** The current Analytics dashboard provides demonstration data. Real-time data aggregation as users interact with the application would be beneficial.
 - **Settings Tab:** The current Settings tab is interactive and allows theme switching. A more comprehensive settings panel with user preferences could be implemented.
 - **Additional Themes:** The UI could be extended to support additional color themes beyond light and dark mode.
 - **Email Service Integration:** Backend integration for email delivery (password reset emails, notifications, and reminders). Currently, password reset works but displays the reset link on screen instead of sending an email, which is suitable for demonstration purposes.
